@@ -1,0 +1,197 @@
+import com.nocturne.build.PrepareDictionaryAssetsTask
+
+plugins {
+    id 'com.android.application'
+}
+
+def nocturneVersionName = '0.8.1'
+
+// Configured upstream source URLs and optional local overrides.
+def dictionaryProps = new Properties()
+rootProject.file('dictionary.properties').withInputStream { dictionaryProps.load(it) }
+
+def prepareDictionaries = tasks.register('prepareNocturneDictionaryAssets', PrepareDictionaryAssetsTask) {
+    group = 'nocturne'
+    description = 'Downloads, validates and packages the offline CC-CEDICT, Unihan and Jieba assets.'
+
+    appVersion.set(nocturneVersionName)
+    cedictUrl.set(dictionaryProps.getProperty('cedict.url'))
+    unihanUrl.set(dictionaryProps.getProperty('unihan.url'))
+    jiebaUrl.set(dictionaryProps.getProperty('jieba.url'))
+
+    def pinCedict = dictionaryProps.getProperty('cedict.sha256', '').trim()
+    def pinUnihan = dictionaryProps.getProperty('unihan.sha256', '').trim()
+    def pinJieba = dictionaryProps.getProperty('jieba.sha256', '').trim()
+    if (pinCedict) cedictSha256.set(pinCedict)
+    if (pinUnihan) unihanSha256.set(pinUnihan)
+    if (pinJieba) jiebaSha256.set(pinJieba)
+
+    if (project.hasProperty('nocturneCedictFile')) {
+        cedictOverrideFile.fileValue(project.rootProject.file(project.property('nocturneCedictFile')))
+    }
+    if (project.hasProperty('nocturneUnihanFile')) {
+        unihanOverrideFile.fileValue(project.rootProject.file(project.property('nocturneUnihanFile')))
+    }
+    if (project.hasProperty('nocturneJiebaFile')) {
+        jiebaOverrideFile.fileValue(project.rootProject.file(project.property('nocturneJiebaFile')))
+    }
+
+    cacheDir.set(rootProject.layout.projectDirectory.dir('dictionary-cache'))
+    outputDir.set(project.layout.buildDirectory.dir('generated/nocturne/assets'))
+}
+
+def readerBundleDir = rootProject.layout.buildDirectory.dir('reader')
+def readerBundleFile = rootProject.layout.buildDirectory.file('reader/app.js')
+def prepareReaderBundle = tasks.register('prepareNocturneReaderBundle', Exec) {
+    group = 'nocturne'
+    description = 'Assembles the ordered reader source fragments into the shared app.js runtime bundle.'
+
+    inputs.dir(rootProject.file('app/src/reader'))
+    inputs.file(rootProject.file('tools/build-reader.js'))
+    outputs.file(readerBundleFile)
+
+    commandLine 'node',
+        rootProject.file('tools/build-reader.js').absolutePath,
+        readerBundleFile.get().asFile.absolutePath
+}
+
+def soundTouchProcessorVersion = '2.1.1'
+def soundTouchProcessorSha256 = '360c233284a44c30f6a7a20578e48f2011c988c86b737d422bc73da37bf8a24b'
+def soundTouchProcessorUrl = "https://registry.npmjs.org/@soundtouchjs/audio-worklet/-/audio-worklet-${soundTouchProcessorVersion}.tgz"
+def soundTouchOutputDir = layout.buildDirectory.dir('generated/nocturne/audio-assets')
+def soundTouchProcessorFile = layout.buildDirectory.file('generated/nocturne/audio-assets/soundtouch-processor.js')
+def soundTouchLicenseFile = layout.buildDirectory.file('generated/nocturne/audio-assets/SOUNDTOUCH-LICENSE.txt')
+
+def prepareSoundTouchProcessor = tasks.register('prepareNocturneSoundTouchProcessor') {
+    group = 'nocturne'
+    description = 'Downloads and verifies the pinned SoundTouchJS AudioWorklet processor and its MPL-2.0 licence.'
+
+    inputs.property('soundTouchProcessorVersion', soundTouchProcessorVersion)
+    inputs.property('soundTouchProcessorSha256', soundTouchProcessorSha256)
+    outputs.file(soundTouchProcessorFile)
+    outputs.file(soundTouchLicenseFile)
+
+    doLast {
+        def archive = rootProject.file("third-party-cache/soundtouchjs-audio-worklet-${soundTouchProcessorVersion}.tgz")
+        if (!archive.isFile()) {
+            archive.parentFile.mkdirs()
+            def partial = new File(archive.parentFile, archive.name + '.part')
+            partial.delete()
+            def connection = new URL(soundTouchProcessorUrl).openConnection()
+            connection.setConnectTimeout(15000)
+            connection.setReadTimeout(60000)
+            connection.setRequestProperty('User-Agent', 'NOCTURNE-build/0.9')
+            connection.getInputStream().withCloseable { input ->
+                partial.withOutputStream { output ->
+                    byte[] buffer = new byte[16384]
+                    long total = 0
+                    int count
+                    while ((count = input.read(buffer)) != -1) {
+                        total += count
+                        if (total > 2 * 1024 * 1024) throw new GradleException('The SoundTouchJS archive exceeded its 2 MiB safety limit.')
+                        output.write(buffer, 0, count)
+                    }
+                }
+            }
+            if (!partial.renameTo(archive)) {
+                partial.delete()
+                throw new GradleException('Could not move the verified SoundTouchJS download into the local cache.')
+            }
+        }
+
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        archive.withInputStream { input ->
+            byte[] buffer = new byte[65536]
+            int count
+            while ((count = input.read(buffer)) != -1) digest.update(buffer, 0, count)
+        }
+        def actualSha256 = digest.digest().collect { String.format('%02x', it & 0xff) }.join()
+        if (actualSha256 != soundTouchProcessorSha256) {
+            archive.delete()
+            throw new GradleException("SoundTouchJS AudioWorklet SHA-256 mismatch. Expected ${soundTouchProcessorSha256}, got ${actualSha256}. The cached archive was deleted.")
+        }
+
+        def extractionRoot = new File(temporaryDir, 'soundtouchjs-extracted')
+        project.delete(extractionRoot)
+        project.copy {
+            from project.tarTree(project.resources.gzip(archive))
+            include 'package/.dist/soundtouch-processor.js'
+            include 'package/LICENSE'
+            into extractionRoot
+        }
+
+        def processor = new File(extractionRoot, 'package/.dist/soundtouch-processor.js')
+        def license = new File(extractionRoot, 'package/LICENSE')
+        if (!processor.isFile() || processor.length() < 1024 || !license.isFile()) {
+            throw new GradleException('The pinned SoundTouchJS archive is missing its processor or MPL-2.0 licence.')
+        }
+
+        def outputDir = soundTouchOutputDir.get().asFile
+        outputDir.mkdirs()
+        project.copy {
+            from processor
+            into outputDir
+            rename { 'soundtouch-processor.js' }
+        }
+        project.copy {
+            from license
+            into outputDir
+            rename { 'SOUNDTOUCH-LICENSE.txt' }
+        }
+    }
+}
+
+android {
+    namespace 'com.nocturne.app'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.nocturne.app'
+        minSdk 24
+        targetSdk 35
+        versionCode 13
+        versionName nocturneVersionName
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main {
+            assets.srcDir(prepareDictionaries.flatMap { it.outputDir })
+            assets.srcDir(soundTouchOutputDir)
+            assets.srcDir(readerBundleDir)
+        }
+    }
+}
+
+// Make sure the generated dictionaries exist before any asset merge runs, whichever variant is built.
+tasks.configureEach { task ->
+    if (task.name.startsWith('merge') && task.name.endsWith('Assets')) {
+        task.dependsOn(prepareDictionaries)
+        task.dependsOn(prepareSoundTouchProcessor)
+        task.dependsOn(prepareReaderBundle)
+    }
+}
+
+// AndroidX currently brings Kotlin stdlib 1.8.22 while an older transitive
+// jdk7/jdk8 adapter can remain at 1.6.21. Since those adapters were merged into
+// kotlin-stdlib in 1.8, align their coordinates to the selected stdlib release.
+configurations.configureEach {
+    resolutionStrategy.force(
+        'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22',
+        'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+    )
+}
+
+dependencies {
+    implementation 'androidx.activity:activity:1.9.3'
+    implementation 'androidx.core:core:1.13.1'
+    implementation 'androidx.webkit:webkit:1.12.1'
+}
