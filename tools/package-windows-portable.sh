@@ -65,9 +65,18 @@ NOCTURNE WINDOWS PORTABLE EDITION
 No install, Python, Node, or network service is required. The launcher serves the app locally on 127.0.0.1 only.
 This portable package stores sessions and imported dictionary data in the local browser profile. It does not upload user content.
 TEXT
+BUILD_ORIGIN="local build"
+if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+  BUILD_ORIGIN="GitHub Actions"
+fi
+BUILD_COMMIT="${GITHUB_SHA:-$(git -C "$ROOT" rev-parse HEAD 2>/dev/null || echo unknown)}"
+BUILD_WORKFLOW="${GITHUB_WORKFLOW:-not set}"
+
 cat > "$STAGING/BUILD-INFO.txt" <<TEXT
 NOCTURNE version: $VERSION
-Built by: NOCTURNE CI — test and build workflow
+Build origin: $BUILD_ORIGIN
+Git commit: $BUILD_COMMIT
+Workflow: $BUILD_WORKFLOW
 Dictionary manifest: dictionary/manifest.json
 Audio processor: SoundTouchJS AudioWorklet 2.1.1 (MPL-2.0)
 Runtime: local-only PowerShell loopback server + Microsoft Edge app window

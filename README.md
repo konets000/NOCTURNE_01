@@ -2,10 +2,10 @@
 
 **An offline-first subtitle reader for language study on Android and Windows.**
 
-NOCTURNE lets you study with the subtitles and audio you already have. Import an SRT file and its matching local audio, follow synchronized captions, replay a sentence, adjust playback speed, and look up Chinese words without sending your study material to a cloud service.
+NOCTURNE lets you study with the subtitles and audio you already have. Import an SRT file and its matching local audio, follow synchronized captions, replay the active subtitle cue, adjust playback speed, and look up Chinese words without sending your study material to a cloud service.
 
 > **Status: development preview · version 0.8.1 (versionCode 13).**  
-> Automated tests and CI packaging are in place. Physical-device Android and real Windows runtime validation are still outstanding. CI APKs are temporary debug builds, not stable releases.
+> CI is configured to run regression tests and package both platforms; the first successful run for this repository is still pending. Physical-device Android and real Windows runtime validation are also outstanding. CI APKs are temporary debug builds, not stable releases.
 
 ## What works today
 
@@ -13,7 +13,7 @@ NOCTURNE lets you study with the subtitles and audio you already have. Import an
 |---|---|
 | Shared reader | One HTML/JavaScript reader used by Android and Windows |
 | Subtitle workflow | SRT import, timestamp-preserving cues, language-aware handling and synchronized highlighting |
-| Audio | Local audio import, playback, seeking, sentence looping and speed control |
+| Audio | Local audio import, playback, seeking, subtitle-cue looping and speed control |
 | Chinese | Offline word segmentation and dictionary lookup using CC-CEDICT, Unicode Unihan and Jieba data |
 | Japanese | Japanese subtitle preservation, language detection and browser word-boundary segmentation |
 | Local library | Saved subtitle sessions and vocabulary |
@@ -25,6 +25,10 @@ NOCTURNE lets you study with the subtitles and audio you already have. Import an
 **Chinese is the established dictionary-backed implementation.** CC-CEDICT supplies word definitions, Unihan supplies character-level information, and Jieba frequencies help choose segmentation boundaries. The character-pinyin fallback is best-effort and can select the wrong reading in context.
 
 **Japanese support is an initial foundation, not a complete dictionary.** Japanese text and mixed scripts are preserved, and the browser's Intl.Segmenter supplies word boundaries. A Yomitan v3 dictionary adapter exists, but Japanese dictionary data, a full morphological engine and verified readings are not bundled.
+
+## Import limitation
+
+A `.txt` extension is accepted by some file pickers, but the current parser still requires timestamped SRT blocks; untimed plain text is not yet a supported document type.
 
 ## What is not implemented
 
@@ -56,7 +60,7 @@ NOCTURNE is designed to keep study activity on the device:
 2. Open the latest successful **CI — test and build** run.
 3. Download its NOCTURNE-CI-... artifact and extract the platform file you need.
 
-The artifact contains a debug APK and a portable Windows ZIP. Workflow artifacts are retained for 14 days.
+Each successful non-pull-request workflow run uploads a debug APK and a portable Windows ZIP. Artifacts are retained for 14 days. No artifact exists until a workflow run completes successfully.
 
 ### Android
 
@@ -78,7 +82,7 @@ Extract NOCTURNE-Windows-Portable-0.8.1.zip to a writable folder and run start-n
 - For Android packaging: Android SDK platform 35 and build-tools 35.0.0.
 - For the Windows ZIP packager on Linux: bash, zip and unzip.
 
-This repository currently uses an installed Gradle command; it does not rely on a checked-in Gradle wrapper.
+This repository does not include the Gradle wrapper scripts or wrapper JAR. CI provisions Gradle 8.9; local Android builds require an installed Gradle 8.9 command.
 
 ### Run the tests
 
@@ -86,7 +90,7 @@ This repository currently uses an installed Gradle command; it does not rely on 
 sh tests/run-tests.sh
 ~~~
 
-The suite uses synthetic fixtures and does not require an Android device. It covers dictionary packaging and SHA-256 pin enforcement, the Java/JavaScript dictionary contract, Chinese and Japanese logic, subtitle handling, application smoke tests, Android activity signatures against local stubs, and Windows archive packaging. Stub compilation and archive inspection do not replace running the app on actual devices.
+The suite uses synthetic fixtures and does not require an Android device. It covers dictionary packaging and SHA-256 pin enforcement, the Java/JavaScript dictionary contract, Chinese and Japanese logic, subtitle handling, application smoke tests, Android activity signatures against local stubs, and (on Linux when `zip` and `unzip` are installed) Windows archive packaging. The runner reports that archive check as skipped when those utilities are unavailable; a skipped check is not a package-test pass. Stub compilation and archive inspection do not replace running the app on actual devices.
 
 On Windows, the native logic-test runner is:
 

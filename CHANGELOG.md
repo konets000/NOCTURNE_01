@@ -37,7 +37,7 @@
 - Replaced the private-use CI workflow with a read-only public CI workflow for pushes, pull requests, and manual runs.
 - Removed signing-key caching, secret restoration, and signing-key backup artifacts. CI debug builds are explicitly temporary test outputs.
 - Pinned GitHub Actions dependencies to verified full commit SHAs and added Dependabot update checks.
-- Added contributor guidance, a security-reporting policy, issue and pull request templates, and a platform validation checklist.
+- Added contributor guidance, a security-reporting policy, and a platform validation checklist.
 - Expanded `.gitignore` to cover build outputs, generated Android packages, common signing material, and local secret files.
 - Kept the missing project-level license and stable release process explicit as release-readiness items.
 

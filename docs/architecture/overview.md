@@ -11,7 +11,7 @@ NOCTURNE is a subtitle-centered language-study reader. The current workflow is:
 1. Import a subtitle file in SRT format.
 2. Select the matching audio file stored on the same device.
 3. Read along with the active subtitle cue synchronized to playback.
-4. Replay, seek, loop a sentence or change playback speed.
+4. Replay the active subtitle cue, seek, loop that cue or change playback speed.
 5. Inspect supported language data and save useful vocabulary or sessions locally.
 
 The product is not currently a full language course, translation service, general web browser, AI tutor or media-streaming platform. Its core value is a focused reading/listening loop with local materials.
@@ -22,7 +22,7 @@ The product is not currently a full language course, translation service, genera
 |---|---|---|
 | SRT reader | Implemented | Parses timestamped cues and preserves cue timing |
 | Audio synchronization | Implemented in shared reader | Local audio playback drives active-cue highlighting |
-| Playback controls | Implemented | Seeking, sentence looping and speed adjustment |
+| Playback controls | Implemented | Seeking, subtitle-cue looping and speed adjustment |
 | Pitch-preserving speed engine | Integrated; device validation pending | SoundTouchJS AudioWorklet is bundled; browser fallback remains available |
 | Chinese dictionary | Implemented | Offline CC-CEDICT entries with character-level Unihan information |
 | Chinese segmentation | Implemented | Jieba frequency data helps choose word boundaries |
@@ -31,7 +31,7 @@ The product is not currently a full language course, translation service, genera
 | Local sessions and vocabulary | Implemented | Data is kept in local application/browser storage |
 | Offline neural TTS | Not implemented | The voice document is a requirements specification only |
 | Speech from pasted URLs | Not implemented | There is no URL extraction, remote voice service or website-to-audio pipeline |
-| Background playback | Not implemented | Playback pauses when the app leaves the foreground |
+| Background playback | Not implemented | Android pauses audio when its activity enters the background. Windows background-window playback has not been separately validated. |
 
 A visible module, adapter or design document must not be mistaken for a complete user-facing feature. In particular, the Japanese Yomitan adapter validates and indexes records but does not supply the missing dictionary data or morphology engine.
 
@@ -62,7 +62,7 @@ Both editions use the same reader assets. The platform-specific layer is kept re
 
 ### Android shell
 
-The Android app is a Java host around a WebView. The manifest targets Android API 35 and sets a minimum supported API of 24. App assets are loaded from the packaged application, and files are selected through the Android document picker. The manifest intentionally does not request general internet access.
+The Android app is a Java host around a WebView. `app/build.gradle` sets compileSdk/targetSdk 35 and minSdk 24; the manifest itself does not set the target SDK. App assets are loaded from the packaged application, and files are selected through the Android document picker. The manifest intentionally does not request general internet access.
 
 ### Windows shell
 
@@ -130,7 +130,7 @@ The separate idea of pasting a URL and automatically extracting its text is also
 
 ### Reader module boundaries
 
-The first organization pass separates dictionary data, persistence and dictionary management, subtitle parsing and segmentation, reader/audio/session behavior, and lookup/library UI into five source fragments. They are concatenated into the existing single-file runtime bundle. Future refactoring should move independently testable behavior behind explicit interfaces, one responsibility at a time. Do not turn the fragments into a web of shared globals or rewrite the working reader wholesale just to change frameworks.
+The current source organization uses seven ordered fragments. The build script is the authority for their order; the fragments share one closure and are not independent modules. They are concatenated into the existing single-file runtime bundle. Future refactoring should move independently testable behavior behind explicit interfaces, one responsibility at a time. Do not turn the fragments into a web of shared globals or rewrite the working reader wholesale just to change frameworks.
 
 ### Data durability
 
