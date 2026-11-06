@@ -31,7 +31,7 @@ The passing workflow is linked above and refers to the exact commit shown. Do no
 ## Not verified
 
 - A successful GitHub Actions run for the engineering commit, including pinned dictionary acquisition, SoundTouch acquisition, APK assembly and Windows packaging.
-- Installation and runtime behaviour on a physical Android device.
+- Installation and runtime behaviour on a physical Android device, including renderer-death recovery and file picking.
 - Runtime behaviour on a real Windows PC, including Edge launch/exit, port conflicts and local profile persistence.
 - Perceptual quality, latency and long-session stability of SoundTouch on target hardware.
 - Independent fresh re-download and re-hash of all production dictionary sources during this audit.

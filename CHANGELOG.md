@@ -1,5 +1,10 @@
 # Changelog
 
+### Unreleased — Android WebView recovery
+- Handle renderer-process termination by detaching and destroying the failed WebView, cancelling any pending file-picker callback, and creating a fresh reader view unless the Activity is finishing or destroyed.
+- Added Android API stubs and regression assertions for the callback and cleanup path. Physical renderer-termination recovery still requires the manual Android device test.
+
+
 ### Unreleased — reader source organization
 - Split the shared reader into seven responsibility-based source fragments under `app/src/reader/` and added a deterministic build tool that assembles the same single-file `app.js` runtime bundle.
 - Wired reader assembly into Android Gradle builds, the Windows portable packager and regression tests. The generated bundle lives under `build/reader/` and is not committed.

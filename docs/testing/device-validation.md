@@ -21,6 +21,7 @@ Runtime checks for the current development preview. This is not a Google Play or
 - [ ] Reopen a saved session. Verify that subtitles restore, and reselect audio when prompted.
 - [ ] Confirm that playback pauses when the app enters the background.
 - [ ] Try rotation, the file picker, and the Back button.
+- [ ] In a dedicated debug test, terminate the WebView renderer and verify NOCTURNE creates a fresh reader view; reopen the last saved session.
 
 ### Windows
 

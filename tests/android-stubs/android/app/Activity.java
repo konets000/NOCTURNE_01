@@ -9,6 +9,8 @@ public abstract class Activity extends android.content.Context {
   protected void onResume() {}
   protected void onDestroy() {}
   public void finish() {}
+  public boolean isFinishing() { return false; }
+  public boolean isDestroyed() { return false; }
   public void startActivity(Intent i) throws android.content.ActivityNotFoundException {}
   public void setContentView(View v) {}
   public android.view.Window getWindow() { return new android.view.Window(); }
