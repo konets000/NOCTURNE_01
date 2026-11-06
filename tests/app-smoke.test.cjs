@@ -336,6 +336,10 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
   assert.ok(!activity.includes('Set.of('), 'avoid Java library APIs newer than minSdk 24 without core-library desugaring');
   assert.ok(activity.includes("document.getElementById('audio');if(a)a.pause()"), 'audio pauses when the app leaves foreground');
   assert.ok(activity.includes('request.hasGesture()'), 'external links open only from a user gesture');
+  assert.ok(activity.includes('onRenderProcessGone(WebView view, RenderProcessGoneDetail detail)'), 'Android handles WebView renderer termination');
+  assert.ok(activity.includes('return handleRendererGone(view)') && activity.includes('attachReaderWebView()'), 'renderer termination creates a fresh reader WebView');
+  assert.ok(activity.includes('failedView.getParent() instanceof ViewGroup') && activity.includes('removeView(failedView)') && activity.includes('failedView.destroy()'), 'failed WebView is detached and destroyed before replacement');
+  assert.ok(activity.includes('filePathCallback.onReceiveValue(null)') && activity.includes('isFinishing()') && activity.includes('isDestroyed()'), 'recovery cancels stale file callbacks and avoids recreating views during Activity teardown');
 
   // ---- Packager: the logic behind the build, checked for the defects found in 0.5.x -------
   const packager = read('buildSrc/src/main/java/com/nocturne/build/DictionaryPackager.java');

@@ -62,7 +62,7 @@ Both editions use the same reader assets. The platform-specific layer is kept re
 
 ### Android shell
 
-The Android app is a Java host around a WebView. `app/build.gradle` sets compileSdk/targetSdk 35 and minSdk 24; the manifest itself does not set the target SDK. App assets are loaded from the packaged application, and files are selected through the Android document picker. The manifest intentionally does not request general internet access.
+The Android app is a Java host around a WebView. `app/build.gradle` sets compileSdk/targetSdk 35 and minSdk 24; the manifest itself does not set the target SDK. App assets are loaded from the packaged application, and files are selected through the Android document picker. The manifest intentionally does not request general internet access. If Android reports that a WebView renderer has exited, the host detaches and destroys that unusable view and creates a new reader WebView at the same local origin.
 
 ### Windows shell
 

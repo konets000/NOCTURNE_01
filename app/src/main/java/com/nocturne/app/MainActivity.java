@@ -7,10 +7,12 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -76,6 +78,32 @@ public final class MainActivity extends ComponentActivity {
                 .addPathHandler("/dictionary/", new BundledDictionaryHandler(this))
                 .build();
 
+        backCallback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (webView == null) {
+                    finish();
+                    return;
+                }
+                // Let the page close an open sheet or modal first; leave the app only when nothing was open.
+                webView.evaluateJavascript(
+                        "window.Nocturne ? window.Nocturne.dismissOverlays() : false",
+                        value -> {
+                            if (!"true".equals(value)) {
+                                finish();
+                            }
+                        });
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, backCallback);
+
+        attachReaderWebView();
+    }
+
+    /**
+     * Creates a fresh WebView for the local reader. A WebView whose renderer has exited must never be reused.
+     */
+    private void attachReaderWebView() {
         webView = new WebView(this);
         webView.setBackgroundColor(Color.rgb(9, 12, 11));
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
@@ -131,6 +159,11 @@ public final class MainActivity extends ComponentActivity {
             }
 
             @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                return handleRendererGone(view);
+            }
+
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
                 if ("https".equals(uri.getScheme()) && APP_HOST.equals(uri.getHost())) {
@@ -146,25 +179,6 @@ public final class MainActivity extends ComponentActivity {
             }
         });
 
-        backCallback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (webView == null) {
-                    finish();
-                    return;
-                }
-                // Let the page close an open sheet or modal first; leave the app only when nothing was open.
-                webView.evaluateJavascript(
-                        "window.Nocturne ? window.Nocturne.dismissOverlays() : false",
-                        value -> {
-                            if (!"true".equals(value)) {
-                                finish();
-                            }
-                        });
-            }
-        };
-        getOnBackPressedDispatcher().addCallback(this, backCallback);
-
         setContentView(webView);
 
         // targetSdk 35 draws edge-to-edge, so the WebView extends under the status and navigation bars. The page
@@ -177,6 +191,41 @@ public final class MainActivity extends ComponentActivity {
         });
         ViewCompat.requestApplyInsets(webView);
         webView.loadUrl(APP_URL);
+    }
+
+    /**
+     * Handles Android WebView renderer termination without taking down the Activity.
+     * The replacement loads the same synthetic origin, so previously saved browser storage remains available.
+     */
+    private boolean handleRendererGone(WebView rendererView) {
+        if (rendererView != webView) {
+            discardWebView(rendererView);
+            return true;
+        }
+
+        webView = null;
+        if (filePathCallback != null) {
+            filePathCallback.onReceiveValue(null);
+            filePathCallback = null;
+        }
+        discardWebView(rendererView);
+
+        // An Activity that is already leaving must not create another view during teardown.
+        if (!isFinishing() && !isDestroyed()) {
+            Toast.makeText(this,
+                    "The reader page stopped unexpectedly and was restarted. Reopen the last saved session if needed.",
+                    Toast.LENGTH_LONG).show();
+            attachReaderWebView();
+        }
+        return true;
+    }
+
+    /** Remove a failed WebView from its parent before destroying it. */
+    private void discardWebView(WebView failedView) {
+        if (failedView.getParent() instanceof ViewGroup) {
+            ((ViewGroup) failedView.getParent()).removeView(failedView);
+        }
+        failedView.destroy();
     }
 
     private void openExternally(Uri uri) {
@@ -241,9 +290,10 @@ public final class MainActivity extends ComponentActivity {
             filePathCallback = null;
         }
         if (webView != null) {
-            webView.stopLoading();
-            webView.destroy();
+            WebView oldView = webView;
             webView = null;
+            oldView.stopLoading();
+            discardWebView(oldView);
         }
         super.onDestroy();
     }
