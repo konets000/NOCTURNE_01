@@ -91,7 +91,7 @@ const plainEnglish = api.parsePlainText('Hola mundo.\n\nHello world!', 'auto');
 assert.equal(plainEnglish.mode, 'text');
 assert.equal(plainEnglish.language, 'und');
 assert.equal(plainEnglish.cues.length, 2);
-assert.deepEqual(plainEnglish.cues.map(cue => cue.text), ['Hola mundo.', 'Hello world!']);
+assert.equal(plainEnglish.cues.map(cue => cue.text).join('\n'), 'Hola mundo.\nHello world!');
 assert.ok(plainEnglish.cues.every(cue => cue.start === null && cue.end === null), 'plain text receives no invented timestamps');
 const mixedPlainText = api.parsePlainText('你好\nKeep the English note too.', 'zh');
 assert.equal(mixedPlainText.cues.length, 1);
@@ -104,7 +104,7 @@ assert.ok(longPlain.cues.every(cue => cue.text.length <= api.MAX_CUE_TEXT_CHARS)
 const restoredText = api.normalizeStoredSessions([{id:'s123456',name:'notes.txt',title:'notes',mode:'text',language:'und',cues:[{start:null,end:null,text:'First paragraph'},{start:null,end:null,text:'Second paragraph'}]}]);
 assert.equal(restoredText.length, 1);
 assert.equal(restoredText[0].mode, 'text');
-assert.deepEqual(restoredText[0].cues.map(cue => cue.text), ['First paragraph','Second paragraph']);
+assert.equal(restoredText[0].cues.map(cue => cue.text).join('|'), 'First paragraph|Second paragraph');
 assert.ok(restoredText[0].cues.every(cue => cue.start === null && cue.end === null), 'text documents survive local-storage validation without fabricated times');
 
 api.state.language = 'und';
