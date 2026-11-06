@@ -69,7 +69,36 @@
       if(stats.timedCueBlocks>0&&language==='ja')throw new Error('No subtitle text remained. Choose an SRT containing Japanese text.');
       throw new Error('No valid subtitle entries were found. Check that the file is an SRT with lines like 00:00:01,200 --> 00:00:03,000.');
     }
-    return {cues,stats,language};
+    return {cues,stats,language,mode:'srt'};
+  }
+  function splitPlainTextBlock(text){
+    const chunks=[];let start=0;
+    while(start<text.length){
+      let end=Math.min(text.length,start+MAX_CUE_TEXT_CHARS);
+      if(end<text.length&&/[\uD800-\uDBFF]/.test(text[end-1])&&/[\uDC00-\uDFFF]/.test(text[end]))end--;
+      if(end<text.length){
+        const minBreak=start+Math.floor((end-start)*0.7);
+        for(let k=end;k>minBreak;k--){if(/\s/u.test(text[k-1])){end=k;break;}}
+      }
+      if(end<=start)end=Math.min(text.length,start+1);
+      chunks.push(text.slice(start,end));start=end;
+    }
+    return chunks;
+  }
+  function parsePlainText(raw,requestedLanguage=state.importLanguage){
+    raw=String(raw||'').replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n');
+    const language=window.NocturneJapaneseCore.resolveLanguage(raw,requestedLanguage);
+    const paragraphs=raw.split(/\n[ \t]*\n+/).map(part=>part.trim()).filter(Boolean);
+    if(!paragraphs.length)throw new Error('The selected text file is empty.');
+    const cues=[];let order=0;
+    for(const paragraph of paragraphs){
+      for(const text of splitPlainTextBlock(paragraph)){
+        if(!text)continue;
+        cues.push({id:order++,start:null,end:null,text});
+        if(cues.length>MAX_CUES_PER_SESSION)throw new Error('This text file has too many blocks to render safely.');
+      }
+    }
+    return {cues,stats:{paragraphs:paragraphs.length,segments:cues.length},language,mode:'text'};
   }
   function isKnownWord(word){return CEDICT.has(word)||DICT.has(word)||SEGMENTATION_FREQUENCY.has(word);}
   function candidateLogProbability(word){

@@ -8,7 +8,7 @@ const ROOT = path.join(__dirname, '..');
 const appPath = path.join(ROOT, 'app', 'src', 'main', 'assets', 'index.html');
 const readerBuilder = require(path.join(ROOT, 'tools', 'build-reader.js'));
 const appScript = readerBuilder.buildReaderBundle(ROOT);
-assert.equal(readerBuilder.SOURCES.length, 7, 'reader source is organized into five ordered responsibility-based fragments');
+assert.equal(readerBuilder.SOURCES.length, 7, 'reader source is organized into seven ordered responsibility-based fragments');
 assert.ok(appScript.startsWith(`'use strict';
 (() => {
 `), 'reader bundle has one strict-mode runtime closure');
@@ -43,7 +43,7 @@ const getInfoCode = appScript.slice(getInfoStart, createElStart);
 
 const testCode = `const STORAGE={sessions:'nocturne.sessions.v1',active:'nocturne.active.v1',saved:'nocturne.saved.v1',speed:'nocturne.speed.v1',loop:'nocturne.loop.v1',language:'nocturne.language.v1'};\n${dictCode}\n${stateToParserStart}\n${parserCode}\n${segmentCode}\n${getInfoCode}\n` + String.raw`
   globalThis.nocturneTestApi = {
-    DICT, CHAR, CEDICT, MULTI, BROAD_CHAR_PINYIN, UNIHAN_CHARACTERS, SEGMENTATION_FREQUENCY, getCharacterInfo, segment, segmentHanziRun, findWordAt, parseSrt,
+    DICT, CHAR, CEDICT, MULTI, BROAD_CHAR_PINYIN, UNIHAN_CHARACTERS, SEGMENTATION_FREQUENCY, getCharacterInfo, segment, segmentHanziRun, findWordAt, parseSrt, parsePlainText,
     parseCedictIntoMap, parseSegmentationRow, numericPinyinToMarks, getInfo, missingWordHelp,
     normalizeStoredSessions, normalizeSavedWords, storageNeedsRepair, loadStore, normalizePlaybackSpeed, state, parseTime,
     decompressGzip, extractCedictZip, CEDICT_MAX_BYTES, MAX_CUES_PER_SESSION, MAX_CUE_TEXT_CHARS, installCedictText,
@@ -87,6 +87,26 @@ api.state.language = 'zh';
 const autoEnglish = api.parseSrt('1\n00:00:01,000 --> 00:00:02,000\nHello from NOCTURNE!\n', 'auto');
 assert.equal(autoEnglish.language, 'und', 'Auto mode leaves non-CJK text unclassified');
 assert.equal(autoEnglish.cues[0].text, 'Hello from NOCTURNE!', 'unclassified text remains intact');
+const plainEnglish = api.parsePlainText('Hola mundo.\n\nHello world!', 'auto');
+assert.equal(plainEnglish.mode, 'text');
+assert.equal(plainEnglish.language, 'und');
+assert.equal(plainEnglish.cues.length, 2);
+assert.deepEqual(plainEnglish.cues.map(cue => cue.text), ['Hola mundo.', 'Hello world!']);
+assert.ok(plainEnglish.cues.every(cue => cue.start === null && cue.end === null), 'plain text receives no invented timestamps');
+const mixedPlainText = api.parsePlainText('你好\nKeep the English note too.', 'zh');
+assert.equal(mixedPlainText.cues.length, 1);
+assert.equal(mixedPlainText.cues[0].text, '你好\nKeep the English note too.', 'plain text is not subjected to the Chinese-only SRT filter');
+const longPlainSource = 'a'.repeat(api.MAX_CUE_TEXT_CHARS + 1);
+const longPlain = api.parsePlainText(longPlainSource, 'auto');
+assert.ok(longPlain.cues.length > 1, 'an oversized paragraph is split into bounded display blocks');
+assert.equal(longPlain.cues.map(cue => cue.text).join(''), longPlainSource, 'splitting does not lose, duplicate or reorder text');
+assert.ok(longPlain.cues.every(cue => cue.text.length <= api.MAX_CUE_TEXT_CHARS), 'each text block respects the existing rendering limit');
+const restoredText = api.normalizeStoredSessions([{id:'s123456',name:'notes.txt',title:'notes',mode:'text',language:'und',cues:[{start:null,end:null,text:'First paragraph'},{start:null,end:null,text:'Second paragraph'}]}]);
+assert.equal(restoredText.length, 1);
+assert.equal(restoredText[0].mode, 'text');
+assert.deepEqual(restoredText[0].cues.map(cue => cue.text), ['First paragraph','Second paragraph']);
+assert.ok(restoredText[0].cues.every(cue => cue.start === null && cue.end === null), 'text documents survive local-storage validation without fabricated times');
+
 api.state.language = 'und';
 const neutralTokens = api.segment('Hello world!');
 assert.equal(neutralTokens.map(token => token.text).join(''), 'Hello world!');

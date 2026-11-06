@@ -22,19 +22,26 @@
     const sessions=[],ids=new Set();
     for(const item of value){
       if(!item||typeof item!=='object'||Array.isArray(item)||typeof item.id!=='string'||!/^s[a-z0-9]{5,128}$/i.test(item.id)||ids.has(item.id)||typeof item.name!=='string'||item.name.length>512||typeof item.title!=='string'||item.title.length>512||!Array.isArray(item.cues))continue;
+      const mode=item.mode==='text'?'text':'srt';
       const cues=[];
       for(const cue of item.cues){
-        if(!cue||typeof cue!=='object'||Array.isArray(cue)||!Number.isFinite(cue.start)||cue.start<0||!Number.isFinite(cue.end)||cue.end<=cue.start||typeof cue.text!=='string'||!cue.text.trim()||cue.text.length>MAX_CUE_TEXT_CHARS)continue;
-        cues.push({start:cue.start,end:cue.end,text:cue.text});
+        if(!cue||typeof cue!=='object'||Array.isArray(cue)||typeof cue.text!=='string'||!cue.text.trim()||cue.text.length>MAX_CUE_TEXT_CHARS)continue;
+        if(mode==='text'){
+          if(cue.start!==null||cue.end!==null)continue;
+          cues.push({start:null,end:null,text:cue.text});
+        }else{
+          if(!Number.isFinite(cue.start)||cue.start<0||!Number.isFinite(cue.end)||cue.end<=cue.start)continue;
+          cues.push({start:cue.start,end:cue.end,text:cue.text});
+        }
         if(cues.length>MAX_CUES_PER_SESSION)break;
       }
       if(!cues.length||cues.length>MAX_CUES_PER_SESSION)continue;
-      // Playback uses a binary search by start time. Repair old or externally modified
-      // browser storage before it reaches that algorithm.
-      cues.sort((a,b)=>a.start-b.start||a.end-b.end);
+      if(mode==='srt')cues.sort((a,b)=>a.start-b.start||a.end-b.end);
       const lastTime=Number.isFinite(item.lastTime)&&item.lastTime>=0?item.lastTime:0;
       const createdAt=Number.isFinite(item.createdAt)&&item.createdAt>=0?item.createdAt:0;
-      sessions.push({id:item.id,name:item.name,title:item.title,cues,lastTime,createdAt,language:['ja','und'].includes(item.language)?item.language:'zh'});ids.add(item.id);
+      const normalized={id:item.id,name:item.name,title:item.title,cues,lastTime,createdAt,language:['ja','und'].includes(item.language)?item.language:'zh'};
+      if(mode==='text')normalized.mode='text';
+      sessions.push(normalized);ids.add(item.id);
     }
     return sessions.slice(0,20);
   }
