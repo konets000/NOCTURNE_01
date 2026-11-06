@@ -7,7 +7,7 @@
 
 
 ### Unreleased — offline AI voice requirements
-- Refreshed the reviewed CC-CEDICT source SHA-256 for the MDBG export observed on 2026-11-05; strict hash verification and the 100,000-entry minimum validation remain enabled.
+- Updated the CC-CEDICT source SHA-256 on 2026-11-06 after the MDBG export URL returned bytes with SHA-256 `7708295976336e3c077b05df0f3beb598caccf1dddf01c9b04c90828d8810cd9` in NOCTURNE_01 CI run #1. Exact-byte SHA-256 verification and the 100,000-entry minimum validation remain enabled.
 
 
 - Added `docs/architecture/voice-system.md`, specifying offline neural voices for Mandarin, English and Mexican Spanish, automatic background downloads of high-quality voice packs, persistent local voice-library storage, and text-visible speech playback.
@@ -37,7 +37,7 @@
 - Replaced the private-use CI workflow with a read-only public CI workflow for pushes, pull requests, and manual runs.
 - Removed signing-key caching, secret restoration, and signing-key backup artifacts. CI debug builds are explicitly temporary test outputs.
 - Pinned GitHub Actions dependencies to verified full commit SHAs and added Dependabot update checks.
-- Added contributor guidance, a security-reporting policy, issue and pull request templates, and a platform validation checklist.
+- Added contributor guidance, a security-reporting policy, and a platform validation checklist.
 - Expanded `.gitignore` to cover build outputs, generated Android packages, common signing material, and local secret files.
 - Kept the missing project-level license and stable release process explicit as release-readiness items.
 

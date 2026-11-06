@@ -11,7 +11,7 @@ Before publishing stable binaries, keep these pins under review whenever an upst
 - License: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/
 - Attribution: CC-CEDICT, maintained by MDBG and the CC-CEDICT editors, continuing the CEDICT project begun by Paul Andrew Denisowski.
 - The build requires at least 100,000 valid entries and records the actual count in the manifest.
-- The source pin was refreshed on 2026-11-05 after the MDBG export bytes changed. The new source SHA-256 is recorded in `dictionary.properties`; the build still verifies the exact bytes, requires at least 100,000 valid entries, and records the actual entry count and source header in the manifest.
+- The source pin was refreshed on 2026-11-06 after NOCTURNE_01 CI run #1 received different bytes from the same export URL. The observed SHA-256 is `7708295976336e3c077b05df0f3beb598caccf1dddf01c9b04c90828d8810cd9`, recorded in `dictionary.properties`. The build still verifies the exact downloaded bytes, requires at least 100,000 valid entries, and records the actual entry count and source header in the manifest.
 
 ### Unicode Unihan: character readings and definitions
 
@@ -29,7 +29,7 @@ Before publishing stable binaries, keep these pins under review whenever an upst
 
 ### Character pinyin fallback (41,000+ characters)
 
-- Embedded in `app/src/main/assets/app.js`. Derived from the xpinyin database, which states that it was generated from Unihan `kMandarin`.
+- Stored in `app/src/reader/01-chinese-character-pinyin-data.js` and included in the generated reader bundle. Derived from the xpinyin database, which states that it was generated from Unihan `kMandarin`.
 - Source project: https://github.com/lxneng/xpinyin
 - License stated by the source file: LPPL 1.3c or later, https://www.latex-project.org/lppl/lppl-1-3c.txt
 - Gives one common reading per character. It cannot resolve context-dependent pronunciation.

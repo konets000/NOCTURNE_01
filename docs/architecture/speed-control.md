@@ -20,34 +20,18 @@ The same HTML/JavaScript player runs in Android WebView and Windows Edge. Subtit
 
 If AudioWorklet is unsupported or the local processor cannot initialize, NOCTURNE falls back to the browser's built-in pitch-preserving `playbackRate` path and identifies that mode in the player. This fallback is for availability, not a promise of equal sound quality.
 
-## Recommended user experience
+## Current user experience
 
-### Main control
+The current reader already exposes a directly adjustable slider from `0.65×` to `1.50×` in `0.05×` steps, plus the `0.80×` **Clear speech** preset. Do not replace it with a one-button cycle or narrow the supported range in documentation. The preset is a convenience, not a claim that one rate is optimal for every speaker or listener.
 
-Replace the one-button cycle with a compact speed control showing the exact current value, with a slider and useful quick choices.
+The active rate is applied during playback and persisted as one global preference. Language-specific speed preferences are not implemented.
 
-Suggested initial range and steps:
+The loop unit is the active subtitle cue, not a linguistically detected sentence. The reader uses the audio element's original media-time timeline for seeking, cue highlighting and loop boundaries.
 
-- Study range: `0.65×–1.10×`, in `0.05×` increments.
-- Quick choices: `0.70×`, `0.75×`, `0.80×`, `0.85×`, `0.90×`, `1.00×`.
-- Optional faster choices: `1.10×`, `1.25×`, `1.50×`.
+### Future work — explicitly not implemented
 
-The initial Mandarin "Clear speech" shortcut should choose `0.80×`, but it must remain only a shortcut. The speed slider always stays directly adjustable. Do not label `0.80×` as universally optimal; the user controls the rate.
+An opt-in adaptive-speed mode could later adjust playback near cue boundaries based on a user-approved range. Subtitle density is only a rough proxy for spoken speed: captions may be summarized, late, early or divided differently from the audio. Any adaptive mode must expose the active rate, stay within explicit user limits and never claim to infer exact speech rate from subtitle text.
 
-### Learning controls
-
-- Apply speed immediately without restarting the track or losing the current position.
-- Keep pitch preservation on by default. Do not offer a pitch-changing slow-motion mode in the initial release.
-- Let the user loop the current subtitle sentence at the chosen rate.
-- Persist a preferred rate locally. Separate Mandarin, English and Mexican-Spanish preferences are a future refinement; the current implementation stores one global speed preference.
-- Keep speech speed independent from volume, equalization and voice selection.
-- Do not change the original source file, session timestamps or subtitle text.
-
-### A later optional intelligence layer
-
-After fixed-rate playback is reliable, consider an opt-in **Adaptive study speed** mode. It could estimate reading difficulty from cue density (for example, Hanzi characters per subtitle second), then ease between user-approved rates near subtitle boundaries. It must show the active rate and obey a strict user-set floor/ceiling.
-
-This should not be in the first release. Subtitle density is only a rough proxy: captions may be summarized, late, early, or split differently from speech. The system should never claim to know exact spoken speed from text alone, and it should never silently alter playback without showing the user.
 
 ## Processing technology candidates
 

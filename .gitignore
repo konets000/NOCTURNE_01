@@ -1,0 +1,12 @@
+.gradle/
+**/build/
+build/
+dictionary-cache/
+third-party-cache/
+local.properties
+*.jks
+*.keystore
+*.apk
+*.aab
+.idea/
+*.iml

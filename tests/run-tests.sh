@@ -69,6 +69,8 @@ if command -v zip >/dev/null 2>&1 && command -v unzip >/dev/null 2>&1; then
   unzip -Z1 "$ARCHIVE" | grep -q "/SOUNDTOUCH-LICENSE.txt$"
   unzip -Z1 "$ARCHIVE" | grep -q "/dictionary/manifest.json$"
   echo "ok - Windows archive contains the reader, Japanese modules, audio processor, licence and Chinese dictionary"
+else
+  echo "SKIPPED - Windows archive smoke test requires both zip and unzip; no package-test pass is claimed"
 fi
 
-echo "ALL OFFLINE TESTS PASSED"
+echo "ALL AVAILABLE OFFLINE TESTS PASSED"

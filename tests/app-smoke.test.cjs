@@ -8,7 +8,7 @@ const ROOT = path.join(__dirname, '..');
 const appPath = path.join(ROOT, 'app', 'src', 'main', 'assets', 'index.html');
 const readerBuilder = require(path.join(ROOT, 'tools', 'build-reader.js'));
 const appScript = readerBuilder.buildReaderBundle(ROOT);
-assert.equal(readerBuilder.SOURCES.length, 7, 'reader source is organized into five ordered responsibility-based fragments');
+assert.equal(readerBuilder.SOURCES.length, 7, 'reader source is organized into seven ordered responsibility-based fragments');
 assert.ok(appScript.startsWith(`'use strict';
 (() => {
 `), 'reader bundle has one strict-mode runtime closure');
