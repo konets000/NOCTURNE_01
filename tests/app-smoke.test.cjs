@@ -454,5 +454,15 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
   vm.runInNewContext(fnSource + '\nsyncCueToAudio();', quiet, { timeout: 2000 });
   assert.equal(quiet.state.selectedCue, -1, 'after all cues end, selectedCue is cleared');
   assert.equal(cleared, 1, 'the old visual highlight is removed');
+  const untimedDocument = {
+    state: { audioUrl: 'blob:test', cues: [{ start: null, end: null }], selectedCue: 0, sessions: [{ id: 'text-doc', mode: 'text' }], activeId: 'text-doc' },
+    cuePrefixMaxEnd: [0],
+    $: id => id === 'audio' ? ({ currentTime: 0 }) : ({ textContent: '' }),
+    document: { querySelectorAll: () => [] },
+    selectCue: () => assert.fail('untimed text must not be synchronized to audio'),
+  };
+  vm.runInNewContext(fnSource + '\\nsyncCueToAudio();', untimedDocument, { timeout: 2000 });
+  assert.equal(untimedDocument.state.selectedCue, 0, 'untimed documents leave manual text selection untouched during audio updates');
+
   console.log('PASS: overlapping-cue highlighting and gap clearing behave correctly in the real function');
 })();

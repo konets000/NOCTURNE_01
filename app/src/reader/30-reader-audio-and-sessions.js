@@ -44,7 +44,7 @@
   }
   function selectCue(i,{seek=false,play=false,scroll=true,persist=true}={}){if(!state.cues.length)return;i=Math.max(0,Math.min(state.cues.length-1,i));state.selectedCue=i;document.querySelectorAll('.cue').forEach((el,j)=>{el.classList.toggle('active',j===i);if(j===i)el.setAttribute('aria-current','true');else el.removeAttribute('aria-current');});const c=state.cues[i];$('currentCueLabel').textContent=`LINE ${String(i+1).padStart(2,'0')} / ${state.cues.length}`;if(seek&&state.audioUrl&&getSession()?.mode!=='text')$('audio').currentTime=c.start;if(scroll){const el=$('transcript').querySelector(`[data-cue="${i}"]`);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});}if(persist)saveSession();}
   function syncCueToAudio(){
-    if(!state.audioUrl||!state.cues.length||getSession()?.mode==='text')return;
+    if(!state.audioUrl||!state.cues.length||state.sessions?.some(session=>session.id===state.activeId&&session.mode==='text'))return;
     const t=$('audio').currentTime, threshold=t-0.45;
     let lo=0,hi=state.cues.length-1,idx=-1;
     while(lo<=hi){const mid=(lo+hi)>>1;if(state.cues[mid].start<=t){idx=mid;lo=mid+1;}else hi=mid-1;}
