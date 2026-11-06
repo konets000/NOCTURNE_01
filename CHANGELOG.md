@@ -7,7 +7,7 @@
 
 
 ### Unreleased — offline AI voice requirements
-- Refreshed the reviewed CC-CEDICT source SHA-256 for the MDBG export observed on 2026-11-05; strict hash verification and the 100,000-entry minimum validation remain enabled.
+- Updated the CC-CEDICT source SHA-256 on 2026-11-06 after the MDBG export URL returned bytes with SHA-256 `7708295976336e3c077b05df0f3beb598caccf1dddf01c9b04c90828d8810cd9` in NOCTURNE_01 CI run #1. Exact-byte SHA-256 verification and the 100,000-entry minimum validation remain enabled.
 
 
 - Added `docs/architecture/voice-system.md`, specifying offline neural voices for Mandarin, English and Mexican Spanish, automatic background downloads of high-quality voice packs, persistent local voice-library storage, and text-visible speech playback.
