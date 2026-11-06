@@ -393,6 +393,7 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
   assert.ok(windowsHost.includes("'soundtouch-processor.js'") && windowsHost.includes("'/soundtouch-processor.js'"), 'Windows serves the worklet through its explicit loopback allowlist');
   const windowsPackager = read('tools/package-windows-portable.sh');
   assert.ok(windowsPackager.includes('soundtouch-processor.js') && windowsPackager.includes('SOUNDTOUCH-LICENSE.txt'), 'Windows packaging includes the verified worklet and its licence');
+  assert.ok(windowsPackager.includes('GITHUB_WORKFLOW') && !windowsPackager.includes('Built by: NOCTURNE CI'), 'Windows build metadata reports the real build origin instead of assuming CI');
 
   const gradleBuild = read('app/build.gradle');
   assert.ok(gradleBuild.includes("soundTouchProcessorVersion = '2.1.1'") && gradleBuild.includes('soundTouchProcessorSha256'), 'SoundTouch dependency is version- and SHA-256-pinned at build time');

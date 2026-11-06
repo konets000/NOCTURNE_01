@@ -80,7 +80,7 @@ def prepareSoundTouchProcessor = tasks.register('prepareNocturneSoundTouchProces
             def connection = new URL(soundTouchProcessorUrl).openConnection()
             connection.setConnectTimeout(15000)
             connection.setReadTimeout(60000)
-            connection.setRequestProperty('User-Agent', 'NOCTURNE-build/0.9')
+            connection.setRequestProperty("User-Agent", "NOCTURNE-build/${nocturneVersionName}")
             connection.getInputStream().withCloseable { input ->
                 partial.withOutputStream { output ->
                     byte[] buffer = new byte[16384]

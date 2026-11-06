@@ -1,5 +1,12 @@
 # Changelog
 
+### Unreleased — plain-text reader and build reliability
+
+- Added untimed `.txt` document import with paragraph segmentation, bounded display blocks, local session persistence, and no fabricated timestamps.
+- Kept SRT timestamp parsing and audio synchronization separate; untimed text cannot trigger cue seeking or looping.
+- Restored the missing read-only CI workflow, Dependabot configuration, and repository ignore rules.
+- Corrected stale source paths, reader-fragment counts, subtitle-cue terminology, and build provenance metadata.
+
 ### Unreleased — reader source organization
 - Split the shared reader into seven responsibility-based source fragments under `app/src/reader/` and added a deterministic build tool that assembles the same single-file `app.js` runtime bundle.
 - Wired reader assembly into Android Gradle builds, the Windows portable packager and regression tests. The generated bundle lives under `build/reader/` and is not committed.
@@ -37,7 +44,7 @@
 - Replaced the private-use CI workflow with a read-only public CI workflow for pushes, pull requests, and manual runs.
 - Removed signing-key caching, secret restoration, and signing-key backup artifacts. CI debug builds are explicitly temporary test outputs.
 - Pinned GitHub Actions dependencies to verified full commit SHAs and added Dependabot update checks.
-- Added contributor guidance, a security-reporting policy, issue and pull request templates, and a platform validation checklist.
+- Added contributor guidance, a security-reporting policy, and a platform validation checklist.
 - Expanded `.gitignore` to cover build outputs, generated Android packages, common signing material, and local secret files.
 - Kept the missing project-level license and stable release process explicit as release-readiness items.
 

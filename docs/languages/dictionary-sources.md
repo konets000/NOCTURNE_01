@@ -29,7 +29,7 @@ Before publishing stable binaries, keep these pins under review whenever an upst
 
 ### Character pinyin fallback (41,000+ characters)
 
-- Embedded in `app/src/main/assets/app.js`. Derived from the xpinyin database, which states that it was generated from Unihan `kMandarin`.
+- Source data lives in `app/src/reader/01-chinese-character-pinyin-data.js` and is assembled into the shared reader bundle. It is derived from the xpinyin database, which states that it was generated from Unihan `kMandarin`.
 - Source project: https://github.com/lxneng/xpinyin
 - License stated by the source file: LPPL 1.3c or later, https://www.latex-project.org/lppl/lppl-1-3c.txt
 - Gives one common reading per character. It cannot resolve context-dependent pronunciation.

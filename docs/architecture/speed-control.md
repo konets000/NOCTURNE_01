@@ -24,21 +24,13 @@ If AudioWorklet is unsupported or the local processor cannot initialize, NOCTURN
 
 ### Main control
 
-Replace the one-button cycle with a compact speed control showing the exact current value, with a slider and useful quick choices.
+The current implementation is no longer the one-button cycle proposed in this early design draft. The reader uses a directly adjustable `0.65×–1.50×` slider in `0.05×` steps and a one-tap `0.80×` Clear speech preset. This implemented range supersedes the earlier narrower proposal. Do not label `0.80×` as universally optimal; the user controls the rate.
 
-Suggested initial range and steps:
-
-- Study range: `0.65×–1.10×`, in `0.05×` increments.
-- Quick choices: `0.70×`, `0.75×`, `0.80×`, `0.85×`, `0.90×`, `1.00×`.
-- Optional faster choices: `1.10×`, `1.25×`, `1.50×`.
-
-The initial Mandarin "Clear speech" shortcut should choose `0.80×`, but it must remain only a shortcut. The speed slider always stays directly adjustable. Do not label `0.80×` as universally optimal; the user controls the rate.
-
-### Learning controls
+### Learning controls### Learning controls
 
 - Apply speed immediately without restarting the track or losing the current position.
 - Keep pitch preservation on by default. Do not offer a pitch-changing slow-motion mode in the initial release.
-- Let the user loop the current subtitle sentence at the chosen rate.
+- Let the user loop the current subtitle cue at the chosen rate.
 - Persist a preferred rate locally. Separate Mandarin, English and Mexican-Spanish preferences are a future refinement; the current implementation stores one global speed preference.
 - Keep speech speed independent from volume, equalization and voice selection.
 - Do not change the original source file, session timestamps or subtitle text.

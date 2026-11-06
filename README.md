@@ -1,22 +1,22 @@
 # NOCTURNE
 
-**An offline-first subtitle reader for language study on Android and Windows.**
+**An offline-first reading and listening tool for language study on Android and Windows.**
 
-NOCTURNE lets you study with the subtitles and audio you already have. Import an SRT file and its matching local audio, follow synchronized captions, replay a sentence, adjust playback speed, and look up Chinese words without sending your study material to a cloud service.
+NOCTURNE lets you study with local text, subtitles and audio. Import a plain `.txt` document for untimed reading, or an `.srt` file and its matching audio for synchronized captions, cue replay, playback-speed control and Chinese word lookup. Your study material stays on your device.
 
 > **Status: development preview · version 0.8.1 (versionCode 13).**  
-> Automated tests and CI packaging are in place. Physical-device Android and real Windows runtime validation are still outstanding. CI APKs are temporary debug builds, not stable releases.
+> Automated tests and a read-only CI build workflow are configured. Physical-device Android and real Windows runtime validation are still outstanding. CI APKs are temporary debug builds, not stable releases.
 
 ## What works today
 
 | Area | Current implementation |
 |---|---|
 | Shared reader | One HTML/JavaScript reader used by Android and Windows |
-| Subtitle workflow | SRT import, timestamp-preserving cues, language-aware handling and synchronized highlighting |
-| Audio | Local audio import, playback, seeking, sentence looping and speed control |
+| Reading workflow | Plain `.txt` paragraphs plus SRT import; text blocks are untimed and SRT cues retain their timestamps |
+| Audio | Local audio import, playback, seeking, SRT cue looping and speed control; plain text has no audio synchronization |
 | Chinese | Offline word segmentation and dictionary lookup using CC-CEDICT, Unicode Unihan and Jieba data |
 | Japanese | Japanese subtitle preservation, language detection and browser word-boundary segmentation |
-| Local library | Saved subtitle sessions and vocabulary |
+| Local library | Saved reading documents and vocabulary |
 | Android | Native Java shell around a WebView |
 | Windows | Portable PowerShell launcher and dedicated Microsoft Edge window |
 
@@ -30,7 +30,7 @@ NOCTURNE lets you study with the subtitles and audio you already have. Import an
 
 These are planned or documented requirements, not current features:
 
-- Neural/AI text-to-speech or generated voices.
+- Neural/AI text-to-speech or generated voices for plain text.
 - Generating speech from a pasted website URL, extracting text from arbitrary websites, or turning a URL into audio.
 - Bundled premium offline voices for Mandarin, English or Spanish.
 - Full Japanese dictionary lookup, conjugation analysis, furigana and contextual readings.
@@ -78,7 +78,7 @@ Extract NOCTURNE-Windows-Portable-0.8.1.zip to a writable folder and run start-n
 - For Android packaging: Android SDK platform 35 and build-tools 35.0.0.
 - For the Windows ZIP packager on Linux: bash, zip and unzip.
 
-This repository currently uses an installed Gradle command; it does not rely on a checked-in Gradle wrapper.
+This repository currently uses an installed Gradle command; it does not contain a complete checked-in Gradle wrapper.
 
 ### Run the tests
 

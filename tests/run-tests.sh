@@ -44,6 +44,7 @@ node "$ROOT/tests/japanese-core.test.cjs"
 echo "== 6. Japanese dictionary tests"
 node "$ROOT/tests/japanese-dictionary.test.cjs"
 
+WINDOWS_PACKAGE_CHECK=skipped
 if command -v zip >/dev/null 2>&1 && command -v unzip >/dev/null 2>&1; then
   echo "== 7. portable Windows package smoke test"
   PACKAGE_OUT="$OUT/windows-package"
@@ -69,6 +70,8 @@ if command -v zip >/dev/null 2>&1 && command -v unzip >/dev/null 2>&1; then
   unzip -Z1 "$ARCHIVE" | grep -q "/SOUNDTOUCH-LICENSE.txt$"
   unzip -Z1 "$ARCHIVE" | grep -q "/dictionary/manifest.json$"
   echo "ok - Windows archive contains the reader, Japanese modules, audio processor, licence and Chinese dictionary"
+  WINDOWS_PACKAGE_CHECK=passed
+else
+  echo "SKIP - portable Windows package smoke test requires both zip and unzip"
 fi
-
-echo "ALL OFFLINE TESTS PASSED"
+echo "ALL AVAILABLE OFFLINE TESTS PASSED (portable Windows package smoke test: $WINDOWS_PACKAGE_CHECK)"

@@ -1,0 +1,11 @@
+.gradle/
+**/build/
+dictionary-cache/
+third-party-cache/
+local.properties
+*.jks
+*.keystore
+*.part
+.idea/
+.DS_Store
+Thumbs.db

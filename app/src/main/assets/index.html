@@ -27,7 +27,7 @@
     </section>
 
     <div class="toolbar" aria-label="Import and library actions">
-      <button class="btn primary" id="importSrtBtn"><span class="ico">＋</span> Import SRT</button>
+      <button class="btn primary" id="importSrtBtn"><span class="ico">＋</span> Import text / SRT</button>
       <label class="section-label" for="languageSelect">LANGUAGE</label>
       <select class="speed" id="languageSelect" aria-label="Subtitle language"><option value="zh">Chinese</option><option value="ja">Japanese</option><option value="auto">Auto</option></select>
       <button class="btn" id="importAudioBtn"><span class="ico">♫</span> Add audio</button>
@@ -40,21 +40,21 @@
     <input class="fileinput" id="cedictInput" type="file" accept=".txt,.u8,.gz,.zip,text/plain,application/gzip,application/zip">
     <div class="dict-help" id="dictHelp">Full dictionary: <a href="https://www.mdbg.net/chinese/export/cedict/cedict_1_0_ts_utf-8_mdbg.txt.gz" target="_blank" rel="noopener noreferrer">download official CC-CEDICT (.txt.gz)</a>, then return and tap <strong>Import CC-CEDICT</strong>. Once imported, dictionary lookup works offline.</div>
     <div class="dictionary-status" id="dictionaryStatus" role="status" aria-live="polite">Built-in character readings · full CC-CEDICT loads automatically in bundled Android builds</div>
-    <div class="file-status"><div class="file-chips" id="fileChips"><span class="file-chip">No SRT imported yet</span></div><span id="importStatus">Files stay on this device.</span></div>
+    <div class="file-status"><div class="file-chips" id="fileChips"><span class="file-chip">No document imported yet</span></div><span id="importStatus">Files stay on this device.</span></div>
     <div class="hanzi-filter-note" id="languageNote"><span class="hanzi-filter-pill"><span class="status-dot"></span><span class="language-mode-label">HANZI-ONLY FILTER ON</span></span><span class="language-note-text">Import bilingual SRTs normally. Chinese lines are kept; pinyin/English-only lines and cues are skipped, and inline Latin text is stripped from mixed lines. Original timestamps stay unchanged.</span></div>
 
     <main class="layout">
-      <section class="card reader-card" aria-label="Subtitle transcript">
+      <section class="card reader-card" aria-label="Reading transcript">
         <div id="readerContent">
           <div class="empty" id="emptyState">
             <div class="empty-symbol">文</div>
-            <h2>Start with an SRT file</h2>
-            <p>Choose an SRT file. The reader keeps its original timestamps and works with local subtitle text.</p>
-            <div class="empty-actions"><button class="btn primary" id="emptyImportBtn">＋ Choose SRT file</button></div>
-            <div class="hintbox"><strong>What happens next?</strong><p>Every subtitle keeps its original timestamp. Supported languages are segmented locally. Add matching audio for synchronized listening and highlighting.</p></div>
+            <h2>Start with text or an SRT</h2>
+            <p>Import a plain .txt document or a timestamped .srt file. Text is kept as untimed paragraphs; SRT timestamps are preserved.</p>
+            <div class="empty-actions"><button class="btn primary" id="emptyImportBtn">＋ Choose text / SRT file</button></div>
+            <div class="hintbox"><strong>What happens next?</strong><p>SRT files keep their timestamps and can synchronize with local audio. Plain text is divided into readable blocks without invented timing; speech generation is not included yet.</p></div>
           </div>
           <div id="loadedReader" hidden>
-            <div class="card-head"><span class="section-label">TRANSCRIPT</span><button class="btn small ghost" id="reloadSrtBtn">↻ Replace SRT</button></div>
+            <div class="card-head"><span class="section-label">TRANSCRIPT</span><button class="btn small ghost" id="reloadSrtBtn">↻ Replace document</button></div>
             <div class="reader-top"><div class="eyebrow" id="readerEyebrow">LOCAL SUBTITLES</div><h2 id="sessionTitle">Untitled listening session</h2><div class="reader-meta"><span id="cueCountLabel">0 subtitles</span><span>·</span><span id="timingLabel">Timestamps preserved</span></div></div>
             <div class="divider"></div>
             <div class="transcript-tools"><span class="section-label">YOUR TEXT</span><span class="cue-count" id="currentCueLabel">Choose a line</span></div>
