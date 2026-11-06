@@ -4,11 +4,11 @@ Runtime checks for the current development preview. This is not a Google Play or
 
 ### Automated checks
 
-- [ ] Offline regression suite has passed on the exact engineering commit (JDK 17+ and Node.js 22).
+- [x] Offline regression suite passed on commit `17885c449a6f45d1e9ef03130b81faa9d51525d5` (JDK 17 and Node.js 22; [Actions run #3](https://github.com/konets000/NOCTURNE_01/actions/runs/42265100190)).
 - [x] A read-only CI workflow and weekly Dependabot configuration are present in the engineering branch.
 - [x] Source review confirms that the Windows launcher binds to loopback and uses an explicit route allowlist. Runtime checks are still pending.
 - [x] Android manifest does not request Internet permission.
-- [ ] A successful public GitHub Actions run has completed for the engineering commit.
+- [x] GitHub Actions run #3 completed successfully for the tested engineering commit (Android APK + Windows ZIP packaging).
 - [ ] The APK has been installed and exercised on a physical Android device.
 - [ ] The portable package has been exercised on a real Windows PC.
 

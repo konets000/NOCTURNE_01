@@ -11,7 +11,7 @@ This report describes evidence for this repository, not for the similarly named 
 
 At the audited baseline commit, the repository had no `.github/workflows/ci.yml`, no `.github/dependabot.yml`, and no GitHub Actions workflow runs. However, `tests/app-smoke.test.cjs` directly reads both missing configuration files and asserts the presence of a pinned, read-only Android/Windows build workflow. The offline test runner therefore cannot pass its application smoke-test stage on that baseline.
 
-The engineering branch restores the repository's public, read-only CI pipeline and weekly Dependabot configuration. The workflow runs the regression suite, assembles the Android debug APK, packages the Windows edition, and uploads test artifacts only for non-pull-request runs. Its first run on this repository must still complete before CI success can be claimed.
+The engineering branch restores the repository's public, read-only CI pipeline and weekly Dependabot configuration. GitHub Actions run [#3](https://github.com/konets000/NOCTURNE_01/actions/runs/42265100190) passed on commit `17885c449a6f45d1e9ef03130b81faa9d51525d5`: SoundTouch SHA verification, the complete offline regression suite, Windows packaging with the real verified processor, Android `:app:assembleDebug`, final Windows ZIP packaging, APK copying and artifact upload all succeeded. The first build attempt exposed an MDBG CC-CEDICT hash change; the pin was refreshed to the bytes received by CI, and the subsequent build completed with strict SHA-256 and dictionary-structure validation still enabled. This CI evidence applies to the listed commit; physical-device validation remains separate.
 
 ## What the automated checks cover
 
@@ -26,7 +26,7 @@ The checked-in Linux runner is designed to cover:
 
 The ZIP check is conditional on both `zip` and `unzip`. The runner now prints an explicit `SKIPPED` message when either utility is missing, and does not describe that skipped package check as passed.
 
-No result is recorded here as passed until the exact engineering commit has a completed workflow run. The current CI report must be updated from that run's actual job and step results rather than copied from another repository.
+The passing workflow is linked above and refers to the exact commit shown. Do not transfer that result to a later source commit without its own completed check.
 
 ## Not verified
 
