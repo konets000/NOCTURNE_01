@@ -467,7 +467,7 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
     updateSpeedUi(){},
     setStored(){},
   };
-  vm.runInNewContext(source+'\\nsetPlaybackSpeed(0.8,false);',sandbox,{timeout:2000});
+  vm.runInNewContext(source+'\nsetPlaybackSpeed(0.8,false);',sandbox,{timeout:2000});
   assert.equal(audio.playbackRate,0.8,'HTML audio element receives the requested tempo exactly once');
   assert.equal(calls.length,2,'both SoundTouch parameters are updated');
   assert.deepEqual(calls.map(call=>[call.name,call.value,call.time]),[['playbackRate',0.8,12.5],['pitch',1,12.5]],
