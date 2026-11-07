@@ -82,6 +82,8 @@ public final class DictionaryPackager {
         public int minJiebaLines = 100_000;
         public int minSegmentationTerms = 100_000;
         public long minDownloadBytes = 100_000L;
+        /** Hard cap for each downloaded source; local reviewed overrides are not subject to this network limit. */
+        public long maxDownloadBytes = 64L * 1024L * 1024L;
         public int connectTimeoutMs = 30_000;
         public int readTimeoutMs = 180_000;
 
@@ -254,6 +256,9 @@ public final class DictionaryPackager {
     }
 
     static void download(Options o, String name, String url, Path dest) throws IOException {
+        if (o.maxDownloadBytes <= 0) {
+            throw new IOException(name + ": maxDownloadBytes must be positive");
+        }
         Files.createDirectories(dest.toAbsolutePath().getParent());
         Path tmp = dest.resolveSibling(dest.getFileName() + ".part");
         o.log.accept(name + ": downloading " + url);
@@ -261,24 +266,51 @@ public final class DictionaryPackager {
         connection.setConnectTimeout(o.connectTimeoutMs);
         connection.setReadTimeout(o.readTimeoutMs);
         connection.setRequestProperty("User-Agent", "NOCTURNE offline dictionary packager");
-        if (connection instanceof HttpURLConnection) {
-            HttpURLConnection http = (HttpURLConnection) connection;
-            http.setInstanceFollowRedirects(true);
-            int code = http.getResponseCode();
-            if (code / 100 != 2) {
-                http.disconnect();
-                throw new IOException(name + ": HTTP " + code + " from " + url);
+        HttpURLConnection http = null;
+        boolean completed = false;
+        try {
+            if (connection instanceof HttpURLConnection) {
+                http = (HttpURLConnection) connection;
+                http.setInstanceFollowRedirects(true);
+                int code = http.getResponseCode();
+                if (code / 100 != 2) {
+                    throw new IOException(name + ": HTTP " + code + " from " + url);
+                }
             }
+
+            // Reject a known oversized response before writing anything. Content-Length is only
+            // an early hint: chunked/unknown-length responses are still bounded while streaming.
+            long declaredLength = connection.getContentLengthLong();
+            if (declaredLength > o.maxDownloadBytes) {
+                throw new IOException(name + ": response declares " + declaredLength
+                        + " bytes, exceeding the " + o.maxDownloadBytes + " byte safety limit");
+            }
+
+            long total = 0;
+            byte[] buffer = new byte[64 * 1024];
+            try (InputStream in = connection.getInputStream();
+                 OutputStream out = Files.newOutputStream(tmp)) {
+                int count;
+                while ((count = in.read(buffer)) != -1) {
+                    if (count == 0) continue;
+                    if (count > o.maxDownloadBytes - total) {
+                        throw new IOException(name + ": response exceeds the " + o.maxDownloadBytes
+                                + " byte safety limit; partial download discarded");
+                    }
+                    out.write(buffer, 0, count);
+                    total += count;
+                }
+            }
+
+            if (total < o.minDownloadBytes) {
+                throw new IOException(name + ": download was only " + total + " bytes; refusing to package it");
+            }
+            Files.move(tmp, dest, StandardCopyOption.REPLACE_EXISTING);
+            completed = true;
+        } finally {
+            if (!completed) Files.deleteIfExists(tmp);
+            if (http != null) http.disconnect();
         }
-        try (InputStream in = connection.getInputStream()) {
-            Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
-        }
-        long size = Files.size(tmp);
-        if (size < o.minDownloadBytes) {
-            Files.deleteIfExists(tmp);
-            throw new IOException(name + ": download was only " + size + " bytes; refusing to package it");
-        }
-        Files.move(tmp, dest, StandardCopyOption.REPLACE_EXISTING);
     }
 
     // ------------------------------------------------------------------ CC-CEDICT
