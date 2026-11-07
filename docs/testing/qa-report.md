@@ -43,4 +43,4 @@ See [Feature verification matrix](feature-verification.md) for every user-facing
 
 ## Release gate
 
-Do not call NOCTURNE stable or device-verified until the verification branch has a successful clean CI run and the [device validation checklist](device-validation.md) is completed. A successful APK build does not prove runtime correctness or acoustic quality.
+The verification branch has a successful CI build, but do not call NOCTURNE stable or device-verified until the [device validation checklist](device-validation.md) is completed. A successful APK build does not prove runtime correctness or acoustic quality.
