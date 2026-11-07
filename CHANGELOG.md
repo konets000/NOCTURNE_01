@@ -1,5 +1,11 @@
 # Changelog
 
+### Unreleased — checked-in Gradle Wrapper
+- Add the official Gradle 8.9 wrapper scripts and JAR from Gradle's `v8.9.0` source tag.
+- Pin the wrapper JAR and Gradle 8.9 binary distribution to independently published Gradle SHA-256 checksums.
+- Use `./gradlew` / `gradlew.bat` for CI and local Android builds, removing the separate system-Gradle installation requirement.
+- Add a regression test for the wrapper JAR bytes, distribution URL and checksum.
+
 ### Unreleased — bounded dictionary source downloads
 - Cap each network dataset download at 64 MiB, reject an oversized declared Content-Length before writing, and enforce the cap while streaming chunked/unknown-length responses.
 - Delete partial files and disconnect HTTP connections on failure; preserve the existing SHA-256 and dataset validation gates.
