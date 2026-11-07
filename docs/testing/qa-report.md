@@ -14,6 +14,8 @@ This report describes evidence for this repository. A successful workflow run pr
 
 This is a reproducibility defect in the moving upstream input, not a reason to weaken integrity checks. The verification branch replaces the mutable MDBG export URL with the dated, unmodified CC-CEDICT snapshot release `1.0+20261007032622`, pinned to the release asset's published SHA-256 `00e6c188df0056c42c0448386d0b4f532aa805d9fdd87aef139f72b421ace2f4`. The branch's own CI must pass before this fix is considered verified.
 
+A subsequent hardening change adds a 64 MiB per-source download cap. Known Content-Length responses are rejected early; chunked/unknown-length responses are bounded during streaming and partial files are deleted. A regression test serves an oversized chunked response from a local test server. The full CI pipeline must pass again on the latest branch head before this new hardening is marked verified.
+
 ## Automated coverage in the existing suite
 
 The Linux workflow and `tests/run-tests.sh` cover:
