@@ -1,41 +1,46 @@
 # QA and verification status
 
 **Repository:** `konets000/NOCTURNE_01`  
-**Verified main commit:** `bdaf16ebc9e7009075278855d5771e23c39c74da`  
+**Audited main commit:** `b7817926d5ab20aa92124d5d0ad18feff3781968`  
 **App version:** 0.8.1 (versionCode 13)  
 **Status:** development preview; no physical-device certification.
 
-This report describes evidence for this repository, not for the similarly named `NOCTURNE_0.9` repository. A successful workflow run on a different repository or commit is not evidence that this tree builds.
+This report describes evidence for this repository. A successful workflow run proves only the exact source commit and inputs that it built.
 
-## Repository repair and current CI evidence
+## CI evidence on the audited main commit
 
-The audited baseline commit `1053e2baa8ffb2575debd39d241f9df09e8a9817` lacked `.github/workflows/ci.yml`, `.github/dependabot.yml`, and `.gitignore`. The application smoke test required both GitHub configuration files, so the offline suite could not pass against that baseline. The missing read-only CI workflow, weekly Dependabot configuration and build-output ignore rules have since been restored and merged into `main`.
+- [Run #28](https://github.com/konets000/NOCTURNE_01/actions/runs/42269216988) completed successfully on `b7817926d5ab20aa92124d5d0ad18feff3781968`. It prepared the pinned SoundTouch processor, ran the offline regression suite, smoke-tested Windows packaging, built the Android debug APK, produced the portable Windows ZIP, staged the APK, and uploaded artifact `NOCTURNE-CI-28`.
+- [Run #29](https://github.com/konets000/NOCTURNE_01/actions/runs/42377445177) ran on the same source commit and failed during `:app:assembleDebug`. The CC-CEDICT URL returned SHA-256 `8a506d01724a4f528db965bf3598efaf3be3ade121749f5c2730262996a80ad1`, while the configured pin expected `7708295976336e3c077b05df0f3beb598caccf1dddf01c9b04c90828d8810cd9`. The packager rejected the unexpected bytes and deleted the mismatched cached copy. The test suite and earlier Windows processor smoke step had passed; later package and artifact steps were skipped because the Android build failed.
 
-GitHub Actions run [#27](https://github.com/konets000/NOCTURNE_01/actions/runs/42268645467) passed on the verified main commit `bdaf16ebc9e7009075278855d5771e23c39c74da`. It completed pinned SoundTouch preparation, the offline regression suite, the real-processor Windows packaging smoke test, Android `:app:assembleDebug`, the final portable Windows ZIP, APK staging and artifact upload.
+This is a reproducibility defect in the moving upstream input, not a reason to weaken integrity checks. The verification branch replaces the mutable MDBG export URL with the dated, unmodified CC-CEDICT snapshot release `1.0+20261007032622`, pinned to the release asset's published SHA-256 `00e6c188df0056c42c0448386d0b4f532aa805d9fdd87aef139f72b421ace2f4`. The branch's own CI must pass before this fix is considered verified.
 
-The first build attempt exposed an MDBG CC-CEDICT hash change. The source pin was refreshed to the exact bytes received in CI, and the subsequent build passed while retaining strict SHA-256 checking and the 100,000-entry CC-CEDICT validation minimum.
+## Automated coverage in the existing suite
 
-## Automated coverage
+The Linux workflow and `tests/run-tests.sh` cover:
 
-The passing Linux workflow covers:
-
-- Java dictionary packager validation and SHA-256 pin enforcement.
+- Java dictionary packager validation, including SHA-256 pin enforcement, CC-CEDICT structure, Unihan property handling, strict UTF-8, segmentation validation, gzip/ZIP handling and generated-asset read-back.
 - Java-to-JavaScript dictionary data contract.
-- Android host Java compilation against local Android/AndroidX API stubs. This is a compile check, not an Android runtime test.
-- Reader and app smoke tests, including storage recovery, subtitle/dictionary logic, and source assertions for Android WebView renderer recovery.
-- Japanese core and dictionary-adapter tests.
-- Windows ZIP contents, using a verified SoundTouch processor in the workflow packaging smoke test. This does not replace a real Windows runtime test.
+- Android host compilation against local Android/AndroidX stubs. This is a compile check, not a physical Android test.
+- Reader bundle generation and deterministic source ordering.
+- Reader logic smoke tests: subtitle parsing, timestamp preservation, language-aware filtering, Chinese segmentation/lookup, pinyin, dictionary imports, persisted-data repair, size limits, Japanese subtitle preservation, and overlapping-cue highlighting.
+- Japanese core and Yomitan v3 adapter data-contract tests. These do not prove the presence of a production Japanese dictionary or morphology runtime.
+- Windows ZIP route/content checks and byte-for-byte shared-reader bundle comparison. Run #28 also checked the production SoundTouch processor and licence in the package.
 
-The standalone Linux runner conditionally executes its Windows ZIP check only when both `zip` and `unzip` are installed. When either is missing, it explicitly reports `SKIPPED`; that check is not counted as passed.
+The standalone Linux runner conditionally executes its Windows ZIP check only when both `zip` and `unzip` are installed. A reported `SKIPPED` is not a pass.
+
+## Feature implementation versus proof
+
+See [Feature verification matrix](feature-verification.md) for every user-facing subsystem, its implementation location, automated evidence, and remaining runtime proof.
 
 ## Not verified
 
-- Installation and real runtime behaviour on a physical Android device, including renderer-death recovery, file picking, orientation changes and audio playback.
-- Runtime behaviour on a real Windows PC, including Edge launch/exit, port conflicts and local profile persistence.
-- Perceptual quality, latency and long-session stability of SoundTouch on target hardware.
-- Independent fresh re-download and re-hash of all production dictionary sources beyond the successful pinned CI acquisition.
-- Japanese dictionary coverage, morphological analysis, contextual readings, furigana or pitch-accent data. The shipped Japanese layer remains a segmentation foundation and adapter code, not a complete Japanese dictionary.
+- The verification branch's own clean CI result using the immutable CC-CEDICT snapshot.
+- Installation and real runtime behaviour on a physical Android device, including file picking, system-bar layout, renderer recovery, playback and long sessions.
+- Runtime behaviour on a real Windows PC, including Edge lifecycle, profile persistence, file selection, audio and loopback shutdown.
+- Perceptual SoundTouch quality, latency, underruns, cue/loop synchronization and Bluetooth behaviour on target hardware.
+- Full Japanese dictionary coverage, morphological analysis, contextual readings, furigana or pitch-accent data. Shipped Japanese support remains a segmentation foundation and adapter code, not a complete Japanese dictionary.
+- Offline neural TTS, arbitrary URL extraction, translation, AI tutoring, spaced repetition and background playback; these are not implemented.
 
 ## Release gate
 
-Do not describe NOCTURNE as device-verified or stable until the [device validation checklist](device-validation.md) is completed. A passing CI build demonstrates that the tested source compiled and packaged in the CI environment; it does not establish correctness on every Android device or Windows configuration.
+Do not call NOCTURNE stable or device-verified until the verification branch has a successful clean CI run and the [device validation checklist](device-validation.md) is completed. A successful APK build does not prove runtime correctness or acoustic quality.
