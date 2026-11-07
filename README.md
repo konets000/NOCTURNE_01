@@ -90,7 +90,7 @@ The repository includes the official Gradle 8.9 wrapper (`gradlew`, `gradlew.bat
 sh tests/run-tests.sh
 ~~~
 
-The suite uses synthetic fixtures and does not require an Android device. It covers dictionary packaging and SHA-256 pin enforcement, the Java/JavaScript dictionary contract, Chinese and Japanese logic, subtitle handling, application smoke tests, Android activity signatures against local stubs, and (on Linux when `zip` and `unzip` are installed) Windows archive packaging. The runner reports that archive check as skipped when those utilities are unavailable; a skipped check is not a package-test pass. Stub compilation and archive inspection do not replace running the app on actual devices.
+The suite uses synthetic fixtures and does not require an Android device. It first verifies the official Gradle wrapper JAR and distribution checksums, then covers dictionary packaging and bounded SHA-256-pinned downloads, the Java/JavaScript dictionary contract, Chinese and Japanese logic, subtitle handling, playback synchronization and speed control, application smoke tests, Android activity signatures against local stubs, and (on Linux when `zip` and `unzip` are installed) Windows archive packaging. The runner reports that archive check as skipped when those utilities are unavailable; a skipped check is not a package-test pass. Stub compilation and archive inspection do not replace running the app on actual devices.
 
 On Windows, the native logic-test runner is:
 
