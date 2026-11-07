@@ -2,7 +2,7 @@
 
 **Repository:** `konets000/NOCTURNE_01`  
 **Audited baseline:** `main` at `b7817926d5ab20aa92124d5d0ad18feff3781968`  
-**Final verification PR head:** `7879855a4efb24b91862474f4eb88a23807e3d67`  
+**Final verification commit:** `bf350dc762a0309eadbb5859cfeaab34cb93dba3`  
 **Application version:** 0.8.1 (versionCode 13)  
 **Status:** development preview; no physical-device certification.
 
@@ -29,9 +29,10 @@ The Java packager regression suite starts a local chunked HTTP response with no 
 
 ## CI evidence for the verification branch
 
-- [Run #67](https://github.com/konets000/NOCTURNE_01/actions/runs/42404790676) passed on application-code commit `b931f511b5df970d6b213d2b9d7f44a91612046d`. It included the bounded-download regression, offline test suite, SoundTouch preparation, Windows package smoke test, Android debug APK build, Windows ZIP packaging, APK staging and artifact upload.
-- Run #67 produced artifact `NOCTURNE-CI-67`, 17,485,285 bytes, SHA-256 `ed20e16eac265bcecdd495a39f41d458d0b215598dec9f438de1473394176c02`, retained until 2026-11-21. It contains the debug APK and portable Windows ZIP. Download it from the [Actions run](https://github.com/konets000/NOCTURNE_01/actions/runs/42404790676), under Artifacts.
-- [Run #76](https://github.com/konets000/NOCTURNE_01/actions/runs/42405070855) passed every test/build/package step on the final PR head `7879855a4efb24b91862474f4eb88a23807e3d67`. Artifact upload was skipped because GitHub skips uploads on pull-request events. The commits after #67 changed verification documentation and PR metadata, not application or build code.
+- [Run #96](https://github.com/konets000/NOCTURNE_01/actions/runs/42406242377) completed successfully on the wrapper-enabled commit `bf350dc762a0309eadbb5859cfeaab34cb93dba3`. It passed the wrapper setup, wrapper checksum regression, dictionary packager tests (including bounded chunked downloads), reader tests, SoundTouch preparation, Windows package smoke test, Android debug APK build and Windows ZIP packaging.
+- [Run #97](https://github.com/konets000/NOCTURNE_01/actions/runs/42406247439) passed the same complete pipeline on the same commit. Artifact upload was skipped because it was a pull-request event.
+- Run #96 produced artifact `NOCTURNE-CI-96`, 17,485,275 bytes, SHA-256 `fdc2ae6777ef40c9b59c106f16317657fc702d945feb303d69919d7cac9829c8`, retained until 2026-11-21. It contains the Android debug APK and portable Windows ZIP. Download it from the [Actions run](https://github.com/konets000/NOCTURNE_01/actions/runs/42406242377), under Artifacts.
+- The Gradle 8.9 wrapper is checked in from the official `v8.9.0` tag. Its JAR SHA-256 and Gradle distribution SHA-256 are checked by `tests/gradle-wrapper.test.cjs`; CI uses `./gradlew` rather than an externally provisioned Gradle executable.
 
 ## Automated coverage
 
