@@ -143,6 +143,7 @@ Long-form product, architecture, language-data, testing and maintainer documenta
 | [docs/architecture/speed-control.md](docs/architecture/speed-control.md) | Playback-speed implementation and validation requirements |
 | [docs/languages/dictionary-sources.md](docs/languages/dictionary-sources.md) | Data sources, licences, attribution and hashes |
 | [docs/testing/qa-report.md](docs/testing/qa-report.md) | Automated verification and remaining gaps |
+| [docs/testing/feature-verification.md](docs/testing/feature-verification.md) | Full feature implementation, test evidence and unverified runtime behavior |
 | [docs/testing/device-validation.md](docs/testing/device-validation.md) | Manual Android and Windows checks |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Development and contribution workflow |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
