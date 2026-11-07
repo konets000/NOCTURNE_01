@@ -469,7 +469,8 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
   };
   vm.runInNewContext(source+'\\nsetPlaybackSpeed(0.8,false);',sandbox,{timeout:2000});
   assert.equal(audio.playbackRate,0.8,'HTML audio element receives the requested tempo exactly once');
-  assert.deepEqual(calls,[{name:'playbackRate',value:0.8,time:12.5},{name:'pitch',value:1,time:12.5}],
+  assert.equal(calls.length,2,'both SoundTouch parameters are updated');
+  assert.deepEqual(calls.map(call=>[call.name,call.value,call.time]),[['playbackRate',0.8,12.5],['pitch',1,12.5]],
     'SoundTouch receives the matching source-rate mirror and neutral pitch target');
   console.log('PASS: SoundTouch tempo mirror and pitch-compensation contract');
 })();
