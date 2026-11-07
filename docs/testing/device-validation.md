@@ -8,7 +8,7 @@ Runtime checks for the current development preview. This is not a Google Play or
 - [x] The offline regression suite and Android/Windows packaging steps completed in run #28.
 - [x] Android manifest does not request Internet permission.
 - [x] Windows launcher source binds to loopback and uses bounded HTTP parsing and an explicit route allowlist.
-- [ ] Confirm this verification branch passes CI using the immutable CC-CEDICT release snapshot. The baseline run #29 failed closed when the mutable MDBG URL returned different bytes.
+- [x] Verification branch passed the complete CI pipeline on `ae796e1b6d9ae659afc616e50d3249efbb25d25e` ([run #51](https://github.com/konets000/NOCTURNE_01/actions/runs/42403597282)); the immutable CC-CEDICT snapshot downloaded, passed SHA-256 validation and was packaged. Artifact `NOCTURNE-CI-51` contains the APK and Windows ZIP (17,485,275 bytes; expires 2026-11-21).
 - [ ] Install the resulting APK on a physical Android device.
 - [ ] Exercise the portable ZIP on a real Windows PC.
 
