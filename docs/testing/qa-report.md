@@ -31,7 +31,7 @@ The Java packager regression suite starts a local chunked HTTP response with no 
 
 - [Run #67](https://github.com/konets000/NOCTURNE_01/actions/runs/42404790676) passed on application-code commit `b931f511b5df970d6b213d2b9d7f44a91612046d`. It included the bounded-download regression, offline test suite, SoundTouch preparation, Windows package smoke test, Android debug APK build, Windows ZIP packaging, APK staging and artifact upload.
 - Run #67 produced artifact `NOCTURNE-CI-67`, 17,485,285 bytes, SHA-256 `ed20e16eac265bcecdd495a39f41d458d0b215598dec9f438de1473394176c02`, retained until 2026-11-21. It contains the debug APK and portable Windows ZIP. Download it from the [Actions run](https://github.com/konets000/NOCTURNE_01/actions/runs/42404790676), under Artifacts.
-- [Run #76](https://github.com/konets000/NOCTURNE_01/actions/runs/42405070855) passed every test/build/package step on the final PR head `7879855a4efb24b91862474f4eb88a23807e3d67). Artifact upload was skipped because GitHub skips uploads on pull-request events. The commits after #67 changed verification documentation and PR metadata, not application or build code.
+- [Run #76](https://github.com/konets000/NOCTURNE_01/actions/runs/42405070855) passed every test/build/package step on the final PR head `7879855a4efb24b91862474f4eb88a23807e3d67`. Artifact upload was skipped because GitHub skips uploads on pull-request events. The commits after #67 changed verification documentation and PR metadata, not application or build code.
 
 ## Automated coverage
 
