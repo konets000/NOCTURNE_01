@@ -33,6 +33,7 @@ This matrix is deliberately conservative. “Implemented” means relevant code 
 
 | Function | Implementation | Automated proof | Remaining proof / limitation |
 |---|---|---|---|
+| Gradle wrapper | Root `gradlew`, `gradlew.bat`, and `gradle/wrapper/gradle-wrapper.jar` | Node regression verifies the JAR SHA-256 (`498495120a03b9a6ab5d155f5de3c8f0d986a449153702fb80fc80e134484f17`); Gradle 8.9 distribution SHA-256 is pinned in wrapper properties; Gradle setup action validates the checked-in wrapper | Requires JDK 17+ and Android SDK 35; first use downloads the pinned distribution |
 | Android app host | `MainActivity.java`, Android Gradle project | CI compiles and packages `:app:assembleDebug`; separate stub tests exercise host signatures and lifecycle contracts | Physical installation, launch and lifecycle still unverified |
 | Android asset delivery | `WebViewAssetLoader`, exact app/dictionary allowlists | Smoke assertions check allowlist, no JS bridge, no file/content URL access and local dictionary routes | Inspect actual installed APK behavior on target WebView version |
 | Android file chooser | Activity Result API + `ACTION_OPEN_DOCUMENT` | Host compilation and callback/recovery source tests | Select single/multiple files, cancel, rotate, and test providers manually |
@@ -44,8 +45,10 @@ This matrix is deliberately conservative. “Implemented” means relevant code 
 | Dictionary build assets | `PrepareDictionaryAssetsTask` + `DictionaryPackager.java` | Java self-tests, strict SHA pin, structural validation, compressed output read-back, and 64 MiB network source cap (including chunked/unknown-length responses) | Final branch CI run #67 passed the chunked-response cap test, immutable CC-CEDICT download, Android APK and Windows package.
 | SoundTouch acquisition | Gradle task in `app/build.gradle` | CI hash-checks archive, extracts only processor and licence | Test processor at runtime on each supported WebView/Edge version |
 | Reader build | `tools/build-reader.js` | Seven-fragment count, strict closure, deterministic bundle and Windows byte-parity checks | Keep generated bundle out of source control |
-| CI artifact production | `.github/workflows/ci.yml` | Run #28 passed full Android APK and Windows ZIP production on the audited baseline commit | New branch needs its own complete successful run; CI APK is debug-signed, not a release |
+| CI artifact production | `.github/workflows/ci.yml` | Run #28 passed full Android APK and Windows ZIP production on the audited baseline commit | Verification branch runs #67 and #78 passed; CI APK is debug-signed, not a release |
 | Dependency reproducibility | Version + SHA pins in `app/build.gradle` and `dictionary.properties` | Run #29 proves mismatch fails closed; new smoke test protects dated CC-CEDICT release URL and digest | Verify run of this branch confirms GitHub release asset download/redirect and SHA |
+
+The project includes the official Gradle 8.9 Wrapper. Its JAR and distribution are pinned to Gradle-published checksums; CI uses the wrapper instead of a separately installed Gradle executable.
 
 ## 3. Build-input safety
 
