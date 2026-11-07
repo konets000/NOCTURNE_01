@@ -47,7 +47,11 @@ This matrix is deliberately conservative. “Implemented” means relevant code 
 | CI artifact production | `.github/workflows/ci.yml` | Run #28 passed full Android APK and Windows ZIP production on the audited baseline commit | New branch needs its own complete successful run; CI APK is debug-signed, not a release |
 | Dependency reproducibility | Version + SHA pins in `app/build.gradle` and `dictionary.properties` | Run #29 proves mismatch fails closed; new smoke test protects dated CC-CEDICT release URL and digest | Verify run of this branch confirms GitHub release asset download/redirect and SHA |
 
-## 3. Privacy and offline boundaries
+## 3. Build-input safety
+
+Each network dataset download is now limited to 64 MiB. Known response lengths are rejected before writing; unknown-length/chunked responses are counted while streaming. Failed or oversized partial files are deleted. SHA-256 and dataset structural validation still run after the bounded download. Local reviewed override files are not subject to the network response cap.
+
+## 4. Privacy and offline boundaries
 
 - Android runtime: no Android `INTERNET` permission; app/dictionary/audio assets are local APK assets.
 - Windows runtime: loopback-only listener on `127.0.0.1:18473`, strict route allowlist, no remote asset requirement.
@@ -55,7 +59,7 @@ This matrix is deliberately conservative. “Implemented” means relevant code 
 - **Build-time network is still required** for Gradle/Android dependencies and pinned dictionary/SoundTouch downloads unless files are cached or supplied through local overrides.
 - Approved MDBG/licence links may open in an external browser only after a user gesture; this does not give the embedded reader general network access.
 
-## 4. Explicitly not implemented
+## 5. Explicitly not implemented
 
 Do not mark the following as implemented or tested:
 
@@ -67,7 +71,7 @@ Do not mark the following as implemented or tested:
 - A robust backup/restore system beyond the current local storage of sessions/vocabulary.
 - Stable release signing and distribution.
 
-## 5. Evidence record
+## 6. Evidence record
 
 - Baseline full CI pass: [run #28](https://github.com/konets000/NOCTURNE_01/actions/runs/42269216988), exact SHA `b7817926d5ab20aa92124d5d0ad18feff3781968`.
 - Baseline reproducibility failure: [run #29](https://github.com/konets000/NOCTURNE_01/actions/runs/42377445177), same SHA; failed on moving MDBG CC-CEDICT bytes. The branch changes only the source reference/pin and verification documentation/tests; its own CI is the acceptance gate.
