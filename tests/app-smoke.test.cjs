@@ -326,7 +326,7 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
   const cedictSnapshot = 'https://github.com/oxalis-ink/cc-cedict/releases/download/1.0%2B20261007032622/cedict_1_0_ts_utf-8_mdbg.txt.gz';
   assert.ok(pins.includes('cedict.url=' + cedictSnapshot), 'CC-CEDICT uses the dated immutable release asset, not the moving MDBG export endpoint');
   assert.ok(pins.includes('cedict.sha256=00e6c188df0056c42c0448386d0b4f532aa805d9fdd87aef139f72b421ace2f4'), 'CC-CEDICT release asset is pinned to its published SHA-256 digest');
-  assert.ok(!/^cedict\\.url=https:\\/\\/www\\.mdbg\\.net\\//m.test(pins), 'a moving MDBG endpoint must not return to the reproducible build inputs');
+  assert.ok(!pins.includes('cedict.url=https://www.mdbg.net/'), 'a moving MDBG endpoint must not return to the reproducible build inputs');
 
   // ---- Activity: no JS bridge, assets served by WebViewAssetLoader ------------------------
   const activity = read('app/src/main/java/com/nocturne/app/MainActivity.java');
