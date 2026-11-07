@@ -8,7 +8,7 @@ Runtime checks for the current development preview. This is not a Google Play or
 - [x] The offline regression suite and Android/Windows packaging steps completed in run #28.
 - [x] Android manifest does not request Internet permission.
 - [x] Windows launcher source binds to loopback and uses bounded HTTP parsing and an explicit route allowlist.
-- [x] Final verification branch head `b931f511b5df970d6b213d2b9d7f44a91612046d` passed the full pipeline in [run #67](https://github.com/konets000/NOCTURNE_01/actions/runs/42404790676), including the new chunked-download cap test, immutable CC-CEDICT SHA check, SoundTouch preparation, Android APK build and Windows ZIP packaging. Artifact `NOCTURNE-CI-67` contains both platform packages (17,485,285 bytes; expires 2026-11-21).
+- [x] Final wrapper-enabled commit `bf350dc762a0309eadbb5859cfeaab34cb93dba3` passed the full pipeline in [run #96](https://github.com/konets000/NOCTURNE_01/actions/runs/42406242377) and [run #97](https://github.com/konets000/NOCTURNE_01/actions/runs/42406247439), including wrapper checksum validation, the chunked-download cap test, immutable CC-CEDICT SHA check, SoundTouch preparation, Android APK build and Windows ZIP packaging. Artifact `NOCTURNE-CI-96` contains both platform packages (17,485,275 bytes; expires 2026-11-21).
 - [ ] Install the resulting APK on a physical Android device.
 - [ ] Exercise the portable ZIP on a real Windows PC.
 
