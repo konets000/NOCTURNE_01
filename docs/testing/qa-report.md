@@ -36,7 +36,7 @@ See [Feature verification matrix](feature-verification.md) for every user-facing
 
 ## Not verified
 
-- The verification branch's own clean CI result using the immutable CC-CEDICT snapshot.
+- Physical Android and real Windows runtime verification.
 - Installation and real runtime behaviour on a physical Android device, including file picking, system-bar layout, renderer recovery, playback and long sessions.
 - Runtime behaviour on a real Windows PC, including Edge lifecycle, profile persistence, file selection, audio and loopback shutdown.
 - Perceptual SoundTouch quality, latency, underruns, cue/loop synchronization and Bluetooth behaviour on target hardware.
