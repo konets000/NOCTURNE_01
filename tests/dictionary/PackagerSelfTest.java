@@ -239,17 +239,17 @@ public final class PackagerSelfTest {
                     String line;
                     while ((line = request.readLine()) != null && !line.isEmpty()) { }
                     OutputStream out = socket.getOutputStream();
-                    out.write(("HTTP/1.1 200 OK\\r\\n"
-                            + "Transfer-Encoding: chunked\\r\\n"
-                            + "Connection: close\\r\\n\\r\\n").getBytes(StandardCharsets.US_ASCII));
+                    out.write(("HTTP/1.1 200 OK\r\n"
+                            + "Transfer-Encoding: chunked\r\n"
+                            + "Connection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
                     byte[] chunk = new byte[64];
                     for (int i = 0; i < 4; i++) {
-                        out.write("40\\r\\n".getBytes(StandardCharsets.US_ASCII));
+                        out.write("40\r\n".getBytes(StandardCharsets.US_ASCII));
                         out.write(chunk);
-                        out.write("\\r\\n".getBytes(StandardCharsets.US_ASCII));
+                        out.write("\r\n".getBytes(StandardCharsets.US_ASCII));
                         out.flush();
                     }
-                    out.write("0\\r\\n\\r\\n".getBytes(StandardCharsets.US_ASCII));
+                    out.write("0\r\n\r\n".getBytes(StandardCharsets.US_ASCII));
                     out.flush();
                 } catch (IOException ignored) {
                     // The client intentionally closes the connection as soon as the cap is exceeded.
