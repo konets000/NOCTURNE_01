@@ -1,17 +1,20 @@
 # Dictionary sources
 
-Download URLs and reviewed SHA-256 pins are recorded in `dictionary.properties`. The build verifies the exact bytes before packaging and fails if a network source is unpinned or has changed. The Jieba URL points to a specific upstream commit. Local files can replace downloads through the `-Pnocturne*File` Gradle properties; local overrides participate in Gradle's file inputs but intentionally skip upstream pin checks.
+Download URLs and reviewed SHA-256 pins are recorded in `dictionary.properties`. The build verifies the exact source bytes before packaging and fails if a network source is unpinned or has changed. The CC-CEDICT and Jieba inputs use versioned or immutable source references. Local files can replace downloads through the `-Pnocturne*File` Gradle properties; local overrides participate in Gradle's file inputs but intentionally skip upstream pin checks.
 
-Before publishing stable binaries, keep these pins under review whenever an upstream dataset is updated. Local files can replace downloads through the `-Pnocturne*File` Gradle properties; local overrides skip the upstream pin check.
+Before publishing stable binaries, review these pins whenever a dataset is deliberately updated. A pin change is a data update and must be accompanied by a reviewed source, attribution/licence check, and a successful clean build.
 
 ### CC-CEDICT: Chinese–English words
 
-- Source: https://www.mdbg.net/chinese/dictionary?page=cc-cedict (export URL in `dictionary.properties`)
+- Original project and attribution: [MDBG CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict).
+- Build input: the dated, unmodified CC-CEDICT gzip snapshot `1.0+20261007032622` from [oxalis-ink/cc-cedict Releases](https://github.com/oxalis-ink/cc-cedict/releases/tag/1.0%2B20261007032622). The mirror states that its release assets are unmodified MDBG exports and labels the release by the export timestamp.
+- Exact asset URL and SHA-256 are pinned in `dictionary.properties`. The current asset SHA-256 is `00e6c188df0056c42c0448386d0b4f532aa805d9fdd87aef139f72b421ace2f4`.
+- The mirror is a distribution mirror, not the original dictionary maintainer. Attribution remains with MDBG, the CC-CEDICT editors/contributors, and the CEDICT project begun by Paul Andrew Denisowski.
+- License: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/.
 - Provides simplified and traditional headwords, numeric-tone pinyin, and slash-separated English senses.
-- License: CC BY-SA 4.0, https://creativecommons.org/licenses/by-sa/4.0/
-- Attribution: CC-CEDICT, maintained by MDBG and the CC-CEDICT editors, continuing the CEDICT project begun by Paul Andrew Denisowski.
-- The build requires at least 100,000 valid entries and records the actual count in the manifest.
-- The source pin was refreshed on 2026-11-06 after NOCTURNE_01 CI run #1 received different bytes from the same export URL. The observed SHA-256 is `7708295976336e3c077b05df0f3beb598caccf1dddf01c9b04c90828d8810cd9`, recorded in `dictionary.properties`. The build still verifies the exact downloaded bytes, requires at least 100,000 valid entries, and records the actual entry count and source header in the manifest.
+- The build requires at least 100,000 valid entries and records the actual count and source header in the generated manifest.
+
+**Why the URL changed:** CI run #29 received different bytes from the mutable MDBG export URL than the SHA-256 previously recorded in `dictionary.properties`. The build correctly rejected the mismatch. Run #28 had succeeded on the same source commit, demonstrating that the build result depended on which bytes the upstream endpoint returned. The dated snapshot makes the input reproducible; SHA-256 validation and the minimum-entry check remain mandatory. Do not solve upstream drift by disabling pin verification or silently accepting a new digest.
 
 ### Unicode Unihan: character readings and definitions
 
@@ -22,7 +25,7 @@ Before publishing stable binaries, keep these pins under review whenever an upst
 
 ### Jieba: segmentation frequencies
 
-- Source: https://raw.githubusercontent.com/fxsjy/jieba/67fa2e36e72f69d9134b8a1037b83fbb070b9775/extra_dict/dict.txt.big (immutable source revision recorded in `dictionary.properties`)
+- Source: https://raw.githubusercontent.com/fxsjy/jieba/67fa2e36e72f69d9134b8a1037b83fbb070b9775/extra_dict/dict.txt.big (immutable source revision recorded in `dictionary.properties`).
 - Keeps Han-only terms of 1 to 12 code points with a positive frequency.
 - Frequencies set word boundaries only. They are not English definitions and not a contextual model.
 - License: MIT. The full upstream notice is included in the generated `dictionary/NOTICE.txt`. Source license: https://github.com/fxsjy/jieba/blob/master/LICENSE
