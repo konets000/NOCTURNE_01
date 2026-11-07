@@ -1,5 +1,10 @@
 # Changelog
 
+### Unreleased — bounded dictionary source downloads
+- Cap each network dataset download at 64 MiB, reject an oversized declared Content-Length before writing, and enforce the cap while streaming chunked/unknown-length responses.
+- Delete partial files and disconnect HTTP connections on failure; preserve the existing SHA-256 and dataset validation gates.
+- Add a local chunked-HTTP regression that proves an unknown-length oversized source is stopped and no partial cache file survives.
+
 ### Unreleased — complete-project verification and reproducible dictionary input
 
 - Fixed reproducibility: replace the mutable MDBG CC-CEDICT export URL with the dated, unmodified CC-CEDICT snapshot release `1.0+20261007032622`, pinned to the release asset SHA-256 `00e6c188df0056c42c0448386d0b4f532aa805d9fdd87aef139f72b421ace2f4`. The existing strict digest and minimum-entry checks remain enabled.
