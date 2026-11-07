@@ -32,6 +32,9 @@ function Invoke-CheckedCommand {
     }
 }
 
+Write-Host '== 0. Gradle wrapper integrity'
+Invoke-CheckedCommand -FilePath 'node' -Arguments @((Join-Path $Root 'tests/gradle-wrapper.test.cjs'))
+
 Write-Host '== 1. packager self-test'
 $PackagerSources = @(
     (Join-Path $Root 'buildSrc/src/main/java/com/nocturne/build/DictionaryPackager.java'),

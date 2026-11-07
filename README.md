@@ -5,7 +5,7 @@
 NOCTURNE lets you study with the subtitles and audio you already have. Import an SRT file and its matching local audio, follow synchronized captions, replay the active subtitle cue, adjust playback speed, and look up Chinese words without sending your study material to a cloud service.
 
 > **Status: development preview · version 0.8.1 (versionCode 13).**  
-> CI is configured to run regression tests and package both platforms; the first successful run for this repository is still pending. Physical-device Android and real Windows runtime validation are also outstanding. CI APKs are temporary debug builds, not stable releases.
+> Automated CI builds the Android APK and portable Windows edition from pinned inputs. Physical Android and real Windows runtime validation remain outstanding. Physical-device Android and real Windows runtime validation are also outstanding. CI APKs are temporary debug builds, not stable releases.
 
 ## What works today
 
@@ -78,11 +78,11 @@ Extract NOCTURNE-Windows-Portable-0.8.1.zip to a writable folder and run start-n
 
 - JDK 17 or newer.
 - Node.js 22 for the regression suite and shared-reader bundle generation (Android and Windows packaging).
-- Gradle 8.9.
+- Gradle 8.9 is provisioned automatically by the checked-in Gradle Wrapper.
 - For Android packaging: Android SDK platform 35 and build-tools 35.0.0.
 - For the Windows ZIP packager on Linux: bash, zip and unzip.
 
-This repository does not include the Gradle wrapper scripts or wrapper JAR. CI provisions Gradle 8.9; local Android builds require an installed Gradle 8.9 command.
+The repository includes the official Gradle 8.9 wrapper (`gradlew`, `gradlew.bat`, and `gradle-wrapper.jar`). Both the wrapper JAR and Gradle distribution are pinned to Gradle-published SHA-256 checksums. You do not need to install Gradle separately.
 
 ### Run the tests
 
@@ -90,7 +90,7 @@ This repository does not include the Gradle wrapper scripts or wrapper JAR. CI p
 sh tests/run-tests.sh
 ~~~
 
-The suite uses synthetic fixtures and does not require an Android device. It covers dictionary packaging and SHA-256 pin enforcement, the Java/JavaScript dictionary contract, Chinese and Japanese logic, subtitle handling, application smoke tests, Android activity signatures against local stubs, and (on Linux when `zip` and `unzip` are installed) Windows archive packaging. The runner reports that archive check as skipped when those utilities are unavailable; a skipped check is not a package-test pass. Stub compilation and archive inspection do not replace running the app on actual devices.
+The suite uses synthetic fixtures and does not require an Android device. It first verifies the official Gradle wrapper JAR and distribution checksums, then covers dictionary packaging and bounded SHA-256-pinned downloads, the Java/JavaScript dictionary contract, Chinese and Japanese logic, subtitle handling, playback synchronization and speed control, application smoke tests, Android activity signatures against local stubs, and (on Linux when `zip` and `unzip` are installed) Windows archive packaging. The runner reports that archive check as skipped when those utilities are unavailable; a skipped check is not a package-test pass. Stub compilation and archive inspection do not replace running the app on actual devices.
 
 On Windows, the native logic-test runner is:
 
@@ -103,10 +103,12 @@ The PowerShell runner does not perform the Linux runner's Windows-ZIP packaging 
 ### Build the Android debug APK
 
 ~~~sh
-gradle --no-daemon :app:assembleDebug
+./gradlew --no-daemon :app:assembleDebug
 ~~~
 
-Output: app/build/outputs/apk/debug/app-debug.apk
+On Windows use `gradlew.bat --no-daemon :app:assembleDebug`.
+
+Output: `app/build/outputs/apk/debug/app-debug.apk`
 
 The build prepares the pinned dictionary assets and SoundTouch audio processor. First-time builds normally need network access. Dictionary URLs, revisions, hashes and attribution are recorded in dictionary.properties and docs/languages/dictionary-sources.md.
 
@@ -133,6 +135,7 @@ Long-form product, architecture, language-data, testing and maintainer documenta
 | app/src/reader/ | Ordered source fragments for the shared reader bundle |
 | build/reader/app.js | Generated single-file runtime bundle; not committed |
 | app/src/main/java/ | Android WebView host and native integration |
+| gradlew / gradlew.bat / gradle/wrapper/ | Verified Gradle 8.9 build wrapper |
 | buildSrc/ | Dictionary acquisition, validation and packaging tasks |
 | desktop/ | Windows launcher and local server |
 | tests/ | Regression tests and synthetic fixtures |
@@ -143,6 +146,7 @@ Long-form product, architecture, language-data, testing and maintainer documenta
 | [docs/architecture/speed-control.md](docs/architecture/speed-control.md) | Playback-speed implementation and validation requirements |
 | [docs/languages/dictionary-sources.md](docs/languages/dictionary-sources.md) | Data sources, licences, attribution and hashes |
 | [docs/testing/qa-report.md](docs/testing/qa-report.md) | Automated verification and remaining gaps |
+| [docs/testing/feature-verification.md](docs/testing/feature-verification.md) | Full feature implementation, test evidence and unverified runtime behavior |
 | [docs/testing/device-validation.md](docs/testing/device-validation.md) | Manual Android and Windows checks |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Development and contribution workflow |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |

@@ -24,7 +24,7 @@ On Windows, the native logic-test runner is:
 powershell -File tests/run-tests.ps1
 ```
 
-Both runners include the Japanese core and Yomitan adapter tests. The Linux runner additionally smoke-tests creation and contents of the Windows ZIP; the PowerShell runner does not emulate that archive-packaging step. Changes to Android packaging should also be checked with the Android SDK and Gradle 8.9. Windows launcher or packaging changes should be tested on Windows before you describe them as verified.
+Both runners include the Japanese core and Yomitan adapter tests. The Linux runner additionally smoke-tests creation and contents of the Windows ZIP; the PowerShell runner does not emulate that archive-packaging step. Changes to Android packaging should also be checked with the Android SDK using the checked-in `./gradlew` (or `gradlew.bat` on Windows). The wrapper pins Gradle 8.9 and verifies the distribution checksum. Windows launcher or packaging changes should be tested on Windows before you describe them as verified.
 
 ### Pull request expectations
 

@@ -13,6 +13,7 @@ This directory contains maintained product and engineering documentation for NOC
 
 ## Testing and validation
 - [QA report](testing/qa-report.md) — automated verification and remaining gaps.
+- [Feature verification matrix](testing/feature-verification.md) — implementation locations, automated evidence, device-only proof, and explicit non-features.
 - [Device validation checklist](testing/device-validation.md) — manual Android and Windows runtime checks.
 
 ## Maintainers

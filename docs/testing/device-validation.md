@@ -4,40 +4,53 @@ Runtime checks for the current development preview. This is not a Google Play or
 
 ### Automated checks
 
-- [x] Offline regression suite passed on verified main commit `bdaf16ebc9e7009075278855d5771e23c39c74da` (JDK 17 and Node.js 22; [Actions run #27](https://github.com/konets000/NOCTURNE_01/actions/runs/42268645467)).
-- [x] A read-only CI workflow and weekly Dependabot configuration are present in `main`.
-- [x] Source review confirms that the Windows launcher binds to loopback and uses an explicit route allowlist. Runtime checks are still pending.
+- [x] Historical full CI build succeeded on baseline commit `b7817926d5ab20aa92124d5d0ad18feff3781968` (JDK 17, Node.js 22, Gradle 8.9; [run #28](https://github.com/konets000/NOCTURNE_01/actions/runs/42269216988)).
+- [x] The offline regression suite and Android/Windows packaging steps completed in run #28.
 - [x] Android manifest does not request Internet permission.
-- [x] GitHub Actions run #27 completed successfully on `main` for the verified commit (Android APK + Windows ZIP packaging).
-- [ ] The APK has been installed and exercised on a physical Android device.
-- [ ] The portable package has been exercised on a real Windows PC.
+- [x] Windows launcher source binds to loopback and uses bounded HTTP parsing and an explicit route allowlist.
+- [x] Final wrapper-enabled commit `bf350dc762a0309eadbb5859cfeaab34cb93dba3` passed the full pipeline in [run #96](https://github.com/konets000/NOCTURNE_01/actions/runs/42406242377) and [run #97](https://github.com/konets000/NOCTURNE_01/actions/runs/42406247439), including wrapper checksum validation, the chunked-download cap test, immutable CC-CEDICT SHA check, SoundTouch preparation, Android APK build and Windows ZIP packaging. Artifact `NOCTURNE-CI-96` contains both platform packages (17,485,275 bytes; expires 2026-11-21).
+- [ ] Install the resulting APK on a physical Android device.
+- [ ] Exercise the portable ZIP on a real Windows PC.
 
 ### Android
 
-- [ ] Install a CI APK and launch the app.
-- [ ] Import `samples/bilingual-filter-demo.srt`. Verify that non-Chinese-only cues are filtered and timestamps remain correct.
-- [ ] Import matching local audio. Verify playback, seek, speed, subtitle-cue loop, and active-cue highlighting.
-- [ ] Tap simplified and traditional words. Verify pinyin and dictionary senses.
-- [ ] Reopen a saved session. Verify that subtitles restore, and reselect audio when prompted.
-- [ ] Confirm that playback pauses when the app enters the background.
-- [ ] Try rotation, the file picker, and the Back button.
-- [ ] In a dedicated debug test, terminate the WebView renderer and verify NOCTURNE creates a fresh reader view; reopen the last saved session.
+- [ ] Install the exact verification-branch CI APK and launch it from a clean install.
+- [ ] Import `samples/bilingual-filter-demo.srt`. Verify non-Chinese-only cue filtering, timestamps, and ordering.
+- [ ] Import a Japanese SRT containing kana, kanji, Latin text and ruby markup. Verify language selection and lossless text preservation. Do not expect full dictionary lookup.
+- [ ] Import matching local audio. Verify play/pause, seek, ±2-second skip, active cue highlighting, and end-of-file behavior.
+- [ ] Test subtitle-cue loop at short and long cues, including overlapping cue ranges and gaps.
+- [ ] Test speed at 0.65×, 0.80×, 1.00×, 1.25× and 1.50×. Compare SoundTouch and browser fallback. Listen for pitch instability, artifacts, clicks and stutters.
+- [ ] Test a long audio session and Bluetooth output. Record underrun warnings and observed audio quality; do not infer quality from a successful build.
+- [ ] Tap simplified and traditional Chinese words. Verify word senses, multiple readings, character pinyin and Unihan fallback.
+- [ ] Import a reviewed CC-CEDICT `.txt`, `.txt.gz`, or supported `.zip` file. Verify size/structure rejection and manual-import precedence after app restart.
+- [ ] Reopen a saved session. Verify subtitle restoration and reselect audio when prompted.
+- [ ] Verify saved words, session recovery after malformed storage, and behavior when app storage is nearly full.
+- [ ] Confirm playback pauses when the app enters the background.
+- [ ] Test file picker cancellation, multiple file selection, rotation, system-bar insets and Back dismissal of sheets/modals.
+- [ ] In a dedicated debug test, terminate the WebView renderer and verify NOCTURNE destroys the dead view, creates a fresh one, and restores the saved session.
+- [ ] Launch with network disabled after installation and verify the bundled reader/dictionaries still load.
 
 ### Windows
 
-- [ ] Extract the portable ZIP and run `start-nocturne.bat`.
-- [ ] Verify that the app opens in Edge and the launcher console stays available.
-- [ ] Import the same synthetic SRT and matching audio. Check synchronization and word lookup.
-- [ ] Reopen the app. Verify that subtitles persist and audio can be reselected.
-- [ ] Close the app window. Verify that the server process exits.
-- [ ] Verify that the server cannot be reached from another device on the local network.
+- [ ] Extract the exact verification-branch portable ZIP and run `start-nocturne.bat` on Windows 10/11.
+- [ ] Verify Microsoft Edge opens in the dedicated NOCTURNE profile and the launcher console remains available.
+- [ ] Verify required-file preflight fails with a clear message when a bundled file is deliberately removed.
+- [ ] Import Chinese and Japanese sample SRT files and matching local audio. Check dictionary lookup, playback, synchronization and segmentation.
+- [ ] Test SoundTouch and browser fallback at the supported speed range; listen for artifacts and underruns.
+- [ ] Reopen the app. Verify local sessions and saved vocabulary persist; reselect audio as required.
+- [ ] Close the managed Edge app window. Verify the PowerShell listener exits.
+- [ ] Test a port 18473 conflict and recovery.
+- [ ] Verify the server is not reachable from another device on the local network.
+- [ ] Verify the portable app works with network disconnected.
 
 ### Before a stable release
 
-- [x] Pin all dictionary inputs with reviewed SHA-256 values; Jieba is commit-pinned.
-- [ ] Choose and add a project-level license. Verify third-party data terms and notices.
+- [x] CC-CEDICT, Unihan and Jieba inputs have explicit SHA-256 pins; CC-CEDICT now uses an immutable dated snapshot on the verification branch.
+- [ ] Choose and add a project-level license. Verify all third-party code and data terms.
 - [ ] Design a separate release-signing process. Never commit, cache, or upload signing keys.
-- [ ] Verify the release build on supported Android and Windows versions.
-- [ ] Publish clear, versioned release notes and checksums for official artifacts.
+- [ ] Complete the physical Android and Windows checks above.
+- [ ] Publish versioned release notes, support boundaries and SHA-256 checksums.
 
 ---
+
+This checklist intentionally distinguishes automated build evidence from real-device behavior. A compiled APK is not proof of audio quality, file-picker reliability, WebView lifecycle, or long-session stability.

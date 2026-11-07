@@ -323,6 +323,10 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
     assert.ok(match, key + ' is a complete lower-case SHA-256 pin');
   }
   assert.match(pins, /jieba\.url=https:\/\/raw\.githubusercontent\.com\/fxsjy\/jieba\/[a-f0-9]{40}\//, 'Jieba source uses an immutable commit URL');
+  const cedictSnapshot = 'https://github.com/oxalis-ink/cc-cedict/releases/download/1.0%2B20261007032622/cedict_1_0_ts_utf-8_mdbg.txt.gz';
+  assert.ok(pins.includes('cedict.url=' + cedictSnapshot), 'CC-CEDICT uses the dated immutable release asset, not the moving MDBG export endpoint');
+  assert.ok(pins.includes('cedict.sha256=00e6c188df0056c42c0448386d0b4f532aa805d9fdd87aef139f72b421ace2f4'), 'CC-CEDICT release asset is pinned to its published SHA-256 digest');
+  assert.ok(!pins.includes('cedict.url=https://www.mdbg.net/'), 'a moving MDBG endpoint must not return to the reproducible build inputs');
 
   // ---- Activity: no JS bridge, assets served by WebViewAssetLoader ------------------------
   const activity = read('app/src/main/java/com/nocturne/app/MainActivity.java');
@@ -438,4 +442,35 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
   assert.equal(quiet.state.selectedCue, -1, 'after all cues end, selectedCue is cleared');
   assert.equal(cleared, 1, 'the old visual highlight is removed');
   console.log('PASS: overlapping-cue highlighting and gap clearing behave correctly in the real function');
+})();
+
+
+// ---- Behaviour: SoundTouch tempo and pitch-compensation contract ---------------------------
+// The media element supplies samples at the requested tempo; the worklet receives the
+// matching rate as metadata and compensates pitch. Do not apply a second tempo multiplier.
+(() => {
+  const audioSource = fs.readFileSync(path.join(ROOT, 'app', 'src', 'reader', '30-reader-audio-and-sessions.js'), 'utf8');
+  const start = audioSource.indexOf('function setPlaybackSpeed(value,persist=true){');
+  const end = audioSource.indexOf('function audioWorkletProcessorUrl(', start + 10);
+  assert.ok(start >= 0 && end > start, 'setPlaybackSpeed implementation found in its authoritative source fragment');
+  const source = audioSource.slice(start, end);
+  const calls = [];
+  const makeParam = name => ({setValueAtTime(value,time){calls.push({name,value,time});}});
+  const params = new Map([['playbackRate',makeParam('playbackRate')],['pitch',makeParam('pitch')]]);
+  const audio = {playbackRate:1};
+  const sandbox = {
+    state:{speed:1},
+    $: id => {assert.equal(id,'audio');return audio;},
+    soundTouchNode:{parameters:{get:name=>params.get(name)}},
+    audioContext:{state:'running',currentTime:12.5},
+    normalizePlaybackSpeed:value=>Math.round(Math.max(.65,Math.min(1.5,Number(value)))*20)/20,
+    updateSpeedUi(){},
+    setStored(){},
+  };
+  vm.runInNewContext(source+';setPlaybackSpeed(0.8,false);',sandbox,{timeout:2000});
+  assert.equal(audio.playbackRate,0.8,'HTML audio element receives the requested tempo exactly once');
+  assert.equal(calls.length,2,'both SoundTouch parameters are updated');
+  assert.deepEqual(calls.map(call=>[call.name,call.value,call.time]),[['playbackRate',0.8,12.5],['pitch',1,12.5]],
+    'SoundTouch receives the matching source-rate mirror and neutral pitch target');
+  console.log('PASS: SoundTouch tempo mirror and pitch-compensation contract');
 })();

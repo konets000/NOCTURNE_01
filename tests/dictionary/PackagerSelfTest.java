@@ -5,6 +5,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +37,7 @@ public final class PackagerSelfTest {
             testUnihanReadsOnlyMatchingProperties(root);
             testFullRunProducesVerifiableAssets(root);
             testMatchingPinAcceptsDownload(root);
+            testDownloadSizeLimitForChunkedResponses(root);
             testPinMismatchDeletesCacheAndFails(root);
             testUnpinnedDownloadIsRejected(root);
             testCedictZipIsDetectedByMagicAndRepacked(root);
@@ -218,6 +222,57 @@ public final class PackagerSelfTest {
         check(result.cedictEntries == 61, "matching pinned download is packaged");
         check(log.stream().anyMatch(m -> m.contains("CC-CEDICT: sha256 matches pin")), "matching pin is reported");
         pass("pinned network source succeeds when its SHA-256 matches");
+    }
+
+    static void testDownloadSizeLimitForChunkedResponses(Path root) throws Exception {
+        Path dir = Files.createDirectories(root.resolve("download-limit"));
+        Path destination = dir.resolve("oversized.download");
+        DictionaryPackager.Options o = baseOptions(root, "download-limit");
+        o.maxDownloadBytes = 128;
+
+        // Deliberately omit Content-Length: the streaming byte counter must still enforce the cap.
+        try (ServerSocket server = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
+            Thread response = new Thread(() -> {
+                try (Socket socket = server.accept()) {
+                    BufferedReader request = new BufferedReader(new InputStreamReader(
+                            socket.getInputStream(), StandardCharsets.ISO_8859_1));
+                    String line;
+                    while ((line = request.readLine()) != null && !line.isEmpty()) { }
+                    OutputStream out = socket.getOutputStream();
+                    out.write(("HTTP/1.1 200 OK\r\n"
+                            + "Transfer-Encoding: chunked\r\n"
+                            + "Connection: close\r\n\r\n").getBytes(StandardCharsets.US_ASCII));
+                    byte[] chunk = new byte[64];
+                    for (int i = 0; i < 4; i++) {
+                        out.write("40\r\n".getBytes(StandardCharsets.US_ASCII));
+                        out.write(chunk);
+                        out.write("\r\n".getBytes(StandardCharsets.US_ASCII));
+                        out.flush();
+                    }
+                    out.write("0\r\n\r\n".getBytes(StandardCharsets.US_ASCII));
+                    out.flush();
+                } catch (IOException ignored) {
+                    // The client intentionally closes the connection as soon as the cap is exceeded.
+                }
+            }, "nocturne-chunked-download-fixture");
+            response.setDaemon(true);
+            response.start();
+
+            String url = "http://127.0.0.1:" + server.getLocalPort() + "/chunked-source";
+            try {
+                DictionaryPackager.download(o, "chunked fixture", url, destination);
+                fail("an unknown-length chunked response must be stopped at the configured byte limit");
+            } catch (IOException expected) {
+                check(expected.getMessage().contains("safety limit"),
+                        "oversized chunked response reports the configured limit (got " + expected.getMessage() + ")");
+            }
+            response.join(5000);
+            check(!response.isAlive(), "chunked test server terminates");
+        }
+        check(!Files.exists(destination), "oversized response is never published as a cache file");
+        check(!Files.exists(destination.resolveSibling(destination.getFileName() + ".part")),
+                "partial oversized response is deleted");
+        pass("chunked/unknown-length source download is bounded and partial bytes are removed");
     }
 
     static void testUnpinnedDownloadIsRejected(Path root) throws IOException {

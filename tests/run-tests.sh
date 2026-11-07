@@ -7,6 +7,9 @@ OUT="$ROOT/build/tests"
 rm -rf "$OUT"
 mkdir -p "$OUT/classes"
 
+echo "== 0. validate Gradle wrapper integrity"
+node "$ROOT/tests/gradle-wrapper.test.cjs"
+
 echo "== 0. assemble shared reader bundle"
 node "$ROOT/tools/build-reader.js" "$ROOT/build/reader/app.js"
 
