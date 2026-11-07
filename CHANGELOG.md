@@ -1,5 +1,13 @@
 # Changelog
 
+### Unreleased — complete-project verification and reproducible dictionary input
+
+- Fixed reproducibility: replace the mutable MDBG CC-CEDICT export URL with the dated, unmodified CC-CEDICT snapshot release `1.0+20261007032622`, pinned to the release asset SHA-256 `00e6c188df0056c42c0448386d0b4f532aa805d9fdd87aef139f72b421ace2f4`. The existing strict digest and minimum-entry checks remain enabled.
+- Added a regression assertion preventing the mutable MDBG download URL from being reintroduced without an explicit test change.
+- Added a complete feature-verification matrix mapping the implemented reader, dictionary, audio, Android, Windows, privacy and build functions to automated proof and remaining device tests.
+- Added a runtime unit test for the SoundTouch source playback-rate mirror and pitch-compensation contract.
+- No neural TTS, full Japanese dictionary/morphology, URL ingestion, background playback, or semantic concept engine is claimed as implemented.
+
 ### Unreleased — Android WebView recovery
 - Handle renderer-process termination by detaching and destroying the failed WebView, cancelling any pending file-picker callback, and creating a fresh reader view unless the Activity is finishing or destroyed.
 - Added Android API stubs and regression assertions for the callback and cleanup path. Physical renderer-termination recovery still requires the manual Android device test.
