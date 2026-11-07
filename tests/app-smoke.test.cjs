@@ -443,3 +443,32 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
   assert.equal(cleared, 1, 'the old visual highlight is removed');
   console.log('PASS: overlapping-cue highlighting and gap clearing behave correctly in the real function');
 })();
+
+
+// ---- Behaviour: SoundTouch tempo and pitch-compensation contract ---------------------------
+// The media element supplies samples at the requested tempo; the worklet receives the
+// matching rate as metadata and compensates pitch. Do not apply a second tempo multiplier.
+(() => {
+  const start = appScript.indexOf('  function setPlaybackSpeed(value,persist=true){');
+  const end = appScript.indexOf('\\n  function ', start + 10);
+  assert.ok(start >= 0 && end > start, 'setPlaybackSpeed implementation found');
+  const source = appScript.slice(start, end);
+  const calls = [];
+  const makeParam = name => ({setValueAtTime(value,time){calls.push({name,value,time});}});
+  const params = new Map([['playbackRate',makeParam('playbackRate')],['pitch',makeParam('pitch')]]);
+  const audio = {playbackRate:1};
+  const sandbox = {
+    state:{speed:1},
+    $: id => {assert.equal(id,'audio');return audio;},
+    soundTouchNode:{parameters:{get:name=>params.get(name)}},
+    audioContext:{state:'running',currentTime:12.5},
+    normalizePlaybackSpeed:value=>Math.round(Math.max(.65,Math.min(1.5,Number(value)))*20)/20,
+    updateSpeedUi(){},
+    setStored(){},
+  };
+  vm.runInNewContext(source+'\\nsetPlaybackSpeed(0.8,false);',sandbox,{timeout:2000});
+  assert.equal(audio.playbackRate,0.8,'HTML audio element receives the requested tempo exactly once');
+  assert.deepEqual(calls,[{name:'playbackRate',value:0.8,time:12.5},{name:'pitch',value:1,time:12.5}],
+    'SoundTouch receives the matching source-rate mirror and neutral pitch target');
+  console.log('PASS: SoundTouch tempo mirror and pitch-compensation contract');
+})();
