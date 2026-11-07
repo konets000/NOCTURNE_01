@@ -449,10 +449,11 @@ assert.equal(api.state.sessions.length, 0, 'zero-duration stored cues are discar
 // The media element supplies samples at the requested tempo; the worklet receives the
 // matching rate as metadata and compensates pitch. Do not apply a second tempo multiplier.
 (() => {
-  const start = appScript.indexOf('  function setPlaybackSpeed(value,persist=true){');
-  const end = appScript.indexOf('\\n  function ', start + 10);
-  assert.ok(start >= 0 && end > start, 'setPlaybackSpeed implementation found');
-  const source = appScript.slice(start, end);
+  const audioSource = fs.readFileSync(path.join(ROOT, 'app', 'src', 'reader', '30-reader-audio-and-sessions.js'), 'utf8');
+  const start = audioSource.indexOf('function setPlaybackSpeed(value,persist=true){');
+  const end = audioSource.indexOf('function audioWorkletProcessorUrl(', start + 10);
+  assert.ok(start >= 0 && end > start, 'setPlaybackSpeed implementation found in its authoritative source fragment');
+  const source = audioSource.slice(start, end);
   const calls = [];
   const makeParam = name => ({setValueAtTime(value,time){calls.push({name,value,time});}});
   const params = new Map([['playbackRate',makeParam('playbackRate')],['pitch',makeParam('pitch')]]);
